@@ -28,7 +28,7 @@
     - ex) !application.properties // !는 이전 패턴 무효화를 의미, 만약 파일 명에 !가 들어갈 경우 \\! 사용
        
 #### git ignore reference
-- [ignore list](github/gitignore "GitHub에서 제공하는 대부분 언어의 ignore목록")
+- [GitHub ignore list](github/gitignore "GitHub에서 제공하는 대부분 언어의 ignore목록")
 - [https://gmlwjd9405.github.io/2017/10/06/make-gitignore-file.html](https://gmlwjd9405.github.io/2017/10/06/make-gitignore-file.html "ignore 참조 사이트 1")
 - [https://www.lesstif.com/pages/viewpage.action?pageId=54952369](https://www.lesstif.com/pages/viewpage.action?pageId=54952369 "ignore 참조 사이트2)
-
+- [https://nesoy.github.io/articles/2017-01/Git-Ignore](https://nesoy.github.io/articles/2017-01/Git-Ignore "ignore 참조 사이트 3")
