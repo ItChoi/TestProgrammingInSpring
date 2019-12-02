@@ -23,7 +23,7 @@
           - GRANT INSERT ON tableName TO userId;
           - GRANT DELETE ON tableName TO userId;
           - GRANT UPDATE ON tableName TO userId;
-      - 방법 (2)
+      - 방법 (2)	
           - GRANT SELECT, INSERT, DELETE, UPDATE, MERGE ON tableName TO userId;
      <br/>
      
