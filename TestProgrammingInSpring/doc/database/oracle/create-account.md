@@ -28,16 +28,33 @@
      <br/>
      
      - 시스템 권한 종류
-       - CREATE USER: DB 생성 권한
+       - CREATE USER: 사용자 생성 권한
+       - DROP USER: 사용자 삭제 권한
+       - DROP ANY TABLE: 테이블 삭제 권한
        - SELECT ANY TABLE: 모든 유저 테이블 조회 권한
        - CREATE ANY TABLE: 모든 유저 테이블 생성 권한
        - CREATE SESSION: DB 접속 권한
-       - CREATE TABLE: 테이블 생성 권한
-       - CREATE VIEW: 뷰 생성 권한
-       - CREATE PROCED USER: 프로시저 생성 권한
-       - CREATE SEQUENCE: 시퀀스 생성 권한
+       - CREATE(ALTER, DROP) TABLE: 테이블 생성 권한
+       - CREATE(DROP) VIEW: 뷰 생성 권한
+       - CREATE(ALTER, DROP) PROCEDURE USER: 프로시저 생성 권한
+       - CREATE(ALTER, DROP) SEQUENCE: 시퀀스 생성 권한
+       - CREATE(ALTER, DROP) SYNONYM: 동의어 생성 권한
+       - CREATE(ALTER, DROP) TRIGGER: 트리거 생성 권한
        - SYSDBA: DB 관리 최고 권한
-       - SYSOPER: DB 관리 권한 
+       - SYSOPER: DB 관리 권한
+       <br/> 
+     - 객체 권한 종류
+       - ALTER: 객체 변경 권한
+       - COMMENT: 객체 COMMENT 가능 권한
+       - DELETE: 객체 데이터 삭제 권한
+       - GRANT: 객체에 GRANT 가능 권한
+       - INDEX: 인덱스 생성 권한
+       - INSERT: 데이터 삽입 권한
+       - RENAME: 이름 변경 권한
+       - SELECT: 데이터 조회 권한
+       - UPDATE: 데이터 갱신 권한
+       - REFERENCE: 데이터 참조 권한
+       - EXECUTE: 프로시저, 함수, 패키지 실행 권한
      <br/>
      
 - ROLE
