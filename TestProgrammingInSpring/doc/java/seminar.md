@@ -1,4 +1,4 @@
-### 남궁성 카페 객체지향
+### 남궁성 카페 객체지향 세미나
 - 목차 
     - 객체지향 언어란?
     - 클래스와 객체
@@ -107,7 +107,100 @@ class A {
 }
 ```
 
-#### ㅁㄴㅇㅁㄴㅇ
+#### 상속
+
+#### 클래스간의 관계 - 포함 관계(composite)
+- 상속 포함 판단
+    - 상속관계: ~은 ~ 이다
+    - 포함관계: ~은 ~을 가지고 있다.
+    
+    
+#### super - 참조 변수
+
+#### super() 조상의 생성자
+- 조상께 먼저 초기화!
+- 자손 클래스의 인스턴스를 생성하면, 자손의 멤버와 조상의 멤버가 합쳐진 하나의 인스턴스가 생성
+- 조상의 멤버들도 초기화되어야 하기 때문에 자손의 생성자의 첫 문장에서 조상의 생성자를 호출해야 한다.
+
+```java
+class Parent {
+
+	int x;
+	int y;
+
+	public Parent(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+}
+
+class Child {
+
+	int z;
+
+	public Child(int x, int y, int z) {
+		super(1, 2); // 생략해도 컴파일러가 자동 삽입. -> 생략하면 super() 호출... // 조상꺼는 조상이 하도록 
+		this.z = z; // 자기꺼는 자기가 생성
+	}
+	
+}
+```
+
+#### 패키지
+- 클래스를 묶어놓은 것... 실제로는 폴더... // String은 java.lang에 있는 String.class
+- 디폴트 패키지 or unnamed package
+- 패키지는 필수가 되서 꼭 넣어야 한다. (맨 첫 줄)
+- 클래스 패스(classpath)
+    - 내가 만든 클래스 파일이 어디 있는지 경로를 등록!
+    
+
+#### 다형성(polymorphism)
+- 자식 c = new 부모(); -> 가능
+- 부모 c = new 자식(); -> 불가능
+- 여러 가지 형태를 가질 수 있는 능력
+- 하나의 참조변수로 여러 타입의 객체를 참조할 수 있는 것 즉, 조상 타입의 참조 변수로 자손 타입의 객체를 다룰 수 있는 것
+
+##### 참조 변수의 형변환
+- 서로 상속관계에 있는 타입간의 형변환만 가능
+- 자손 타입에서 조상 타입으로 형변환하는 경우, 형변환 생략 가능
+    - 자손타입 -> 조상타입: 형변환 생략 가능
+    - 자손타입 <- 조상타입: 형변환 생략 불가
+    
+##### instanceof 연산자
+- 참조 변수가 참조하는 인스턴스의 실제 타입을 체크하는데 사용
+- true / false 리턴
+- true일 시 해당 타입으로 형변환 가능
+    
+##### 참조 변수와 인스턴스 변수의 연결
+```java
+class Parent {
+	int x = 100;
+	
+	void method() {
+		System.out.println("parent Method");
+	}
+}
+
+class Child extends Parent {
+	int x = 200;
+	
+	void method() {
+		System.out.println("child Method");
+	}
+}
+
+Child c = new Child();
+System.out.println(c.x)			// 200
+System.out.println(c.method())	// child Method
+
+Parent p = new Child();
+System.out.println(p.x)			// 100
+System.out.println(p.method())	// child Method
+
+// 멤버 변수는 참조 변수가 해당하는 변수를 불러오지만, 메서드의 경우 오버라이딩된 경우 자식꺼를 타게 된다.
+// 여러 종류의 객체를 하나의 배열로 다룰 수 있다.
+```
 
 
 
