@@ -40,3 +40,38 @@ Class<?> boardClass2 = Class.forName("com.test.Board");
     - Field.set(obj, val), Field.get(obj)
 - 메소드 실행
     - method.invoke(obj, param);    
+    
+#### DI (Dependecny Injection)
+##### 나만의 DI 프레임워크 만들기    
+- @Inject 애노테이션 지원 예정
+- 우리가 만든 IoC 컨테이너 설치 후 사용해보기.
+    - 프로젝트 경로 이동 후 mvn install (안되서 살펴보니, maven 따로 설치가 필요하고, 환경 변수 등록 후 재접속이 필요하다.)
+    - mvn install 후 로컬 경로: C:\Users\itcho\.m2\repository\com\spring\test\1.0.0-BUILD-SNAPSHOT에 jar나 war파일로 들어간다.
+    - 그러고나면 다른 메이븐 프로젝트에서 참조할 수 있다.
+    - 새 프로젝트를 만든 후
+      1. 새 프로젝트 pom.xml의 dependency를 추가한다.
+      ```java
+      <dependency>
+      	<groupId>com.spring</groupId>
+      	<artifactId>test</artifactId>
+      	<version>1.0.0-BUILD-SNAPSHOT</version>
+      </dependency>
+      ```
+      
+#### 리플렉션 정리 및 활용      
+- 리플렉션 사용 시 주의점
+    - 지나친 사용은 성능 이슈 야기
+    - 컴파일 타임에 확인되지 않고 런타임 시 발생하는 문제 만들 가능성
+    - 접근 지시자 무시 가능성
+    <br/>
+- 스프링
+    - 의존성 주입
+    - mvc 뷰에서 넘어온 데이터를 객체에 바인딩 할 때
+    
+- 하이버네이트 사용 시
+    - @Entity 클래스에 Setter가 없다면 리플렉션 사용
+    <br/>
+
+- JUnit
+          
+
