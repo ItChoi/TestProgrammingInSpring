@@ -1,6 +1,9 @@
 # Servers
 Servers
 
+# .Properties file
+*.properties
+
 # Compiled class file
 *.class
 

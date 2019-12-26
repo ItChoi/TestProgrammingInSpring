@@ -166,10 +166,14 @@
     - 테스트 메소드 태그를 추가할 수 있다..
     - 하나의 테스트 메소드에 여러 태그를 사용할 수 있다.
     - 인텔리제이에서는 Edit Configuration에 JUnit 탭에서 Test Kind에 Class가 아닌 Tags로 선택하고 밑에 @Tag Name을 적어주면 해당하는 것만 실행
-    - 이클립스에서는 pom.xml dependency에서  <includeTags>fast</includeTags> 추가하는 방식...
-    - 나는 이클립스에서 왜 밑에처럼 해도 안될까... JUnit 5를 외부 라이브러리로 받아 사용해서 그런가?
-    - 클래스에  @ExcludeTags("fast") @IncludeTags("slow") 해줘도 안된다... 흐음
-    - 해결함 이클립스: 우클릭 Run Configuration에 가서 Test 탭에 include and exclude tags: 에 Configure 버튼 클릭 후 추가 및 삭제!!
+    <br/>
+    
+    - 문제발생 문제발생!
+      - 이클립스에서는 pom.xml dependency에서  <includeTags>fast</includeTags> 추가하는 방식...?
+      - 나는 이클립스에서 왜 밑에처럼 해도 안될까... JUnit 5를 외부 라이브러리로 받아 사용해서 그런가?
+      - 클래스에  @ExcludeTags("fast") @IncludeTags("slow") 해줘도 안된다... 흐음
+    - 해결함! 해결함!
+      - 해결함 이클립스: 우클릭 Run Configuration에 가서 Test 탭에 include and exclude tags: 에 Configure 버튼 클릭 후 추가 및 삭제!!
     
     ```java
     <!-- build툴 및 ci에서 테스트를 돌리기 위함 -->
