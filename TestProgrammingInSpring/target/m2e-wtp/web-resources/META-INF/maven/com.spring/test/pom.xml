@@ -155,4 +155,39 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+    	<profile>
+    		<id>default</id>
+    		<activation>
+    			<activeByDefault>true</activeByDefault>
+    		</activation>
+    		<build>
+    			<plugins>
+    				<plugin>
+	    				<artifactId>maven-surefire-plugin</artifactId>
+	    				<configuration>
+	    					<groups>fast</groups>
+	    				</configuration>
+    				</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    	
+    	<profile>
+    		<id>ci</id>
+    		<build>
+    			<plugins>
+    				<plugin>
+	    				<artifactId>maven-surefire-plugin</artifactId>
+	    				<!-- 설정 안하면 테스트 다 실행 -->
+	    				<configuration>
+	    					<groups>fast | slow</groups> <!-- fast | slow 테스트 그룹 실행 -->
+	    				</configuration>
+    				</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
+    
 </project>

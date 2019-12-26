@@ -1,9 +1,7 @@
 package com.spring.test.junit5;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -13,27 +11,65 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.suite.api.ExcludeTags;
+import org.junit.platform.suite.api.IncludeTags;
 
 // 언더스코어를 빈 공백 문자로 치환
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+// @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@ExcludeTags("fast")
+@IncludeTags("slow")
 class StudyTest {
 
 	@Test
 	@DisplayName("스터디 만들기")
 	void create_new_study() {
-		Study study = new Study(-10);
+		/*
+		 * IllegalArgumentException exception =
+		 * assertThrows(IllegalArgumentException.class, () -> new Study(-10));
+		 * assertEquals("limit은 0보다 커야 함.", exception.getMessage());
+		 */
+		// Study study = new Study(-10);
 		/*
 		 * assertNotNull(study); assertEquals(StudyStatus.DRAFT, study.getStatus(),
 		 * "스터디를 첨 만들면 상태 값이 DRAFT여야 한다."); assertTrue(study.getLimit() > 0,
 		 * "스터디 최대 참석 가능 인원은 0보다 커야 한다.");
 		 */
 		
-		assertAll(
-			() -> assertNotNull(study),
-			() -> assertEquals(StudyStatus.DRAFT, study.getStatus(), () -> "스터디 처음 상태는 " + StudyStatus.DRAFT + " 이다."),
-			() -> assertTrue(study.getLimit() > 0, "스터디 참석인원은 0보다 커야 한다.")
-		);
+		/*
+		 * assertAll( () -> assertNotNull(study), () -> assertEquals(StudyStatus.DRAFT,
+		 * study.getStatus(), () -> "스터디 처음 상태는 " + StudyStatus.DRAFT + " 이다."), () ->
+		 * assertTrue(study.getLimit() > 0, "스터디 참석인원은 0보다 커야 한다.") );
+		 */
+		
+		// 단점 코드블럭이 실행 끝나는 거 까지 기다리고 시간을 비교한다.
+		/*
+		 * assertTimeout(Duration.ofMillis(100), () -> { new Study(10);
+		 * Thread.sleep(300); });
+		 */
+		
+		// 시간이 초과하면 테스트를 바로 종료시킨다. 
+		// 주의: 테스트 코드 블럭은 별도의 스레드에서 실행하기 떄문에, 스레드 로컬을 사용하는 코드가 있다면
+		// 예상치 못한 결과가 나올 수 있다. 가령, 트랜잭션 처리는 스레드 로컬을 기본 전략으로 하는데,
+		// 스레드 로컬은 다른 스레드에서 공유가 불가능! - 조정은 가능 
+		// 테스트에서 스프링 트랜잭션이 제대로 동작안할 수 가 있어서 rollback이 안되고 DB에 반영될 수 있다.
+		/*
+		 * assertTimeoutPreemptively(Duration.ofMillis(100), () -> { new Study(10);
+		 * Thread.sleep(300); });
+		 */
+
+		/*
+		 * String test_env = System.getenv("TEST_ENV"); System.out.println(test_env);
+		 * 
+		 * assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
+		 * 
+		 * assumingThat("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")), () -> { //
+		 * 코드 실행 });
+		 * 
+		 * assumingThat("DEV".equalsIgnoreCase(System.getenv("TEST_ENV")), () -> { // 코드
+		 * 실행 });
+		 */
 	}
 
 	@Test
@@ -42,27 +78,45 @@ class StudyTest {
 		System.out.println("create1");
 	}
 	
-	// 테스트 클래스 안에 있는 여러 테스트가 실행되기 전 딱 한 번만 호출이 된다.
-	// 반드시 static 사용해야 하고, private은 안되는데, default는 되고 return type이 있으면 안된다.
-	@BeforeAll
-	static void beforeAll() {
-		System.out.println("before all");
+	@Test
+	@DisplayName("테스트1")
+	@Tag("fast")
+	void test1() {
+		System.out.println("test1");
 	}
 	
-	@AfterAll
-	static void afterAll() {
-		System.out.println("after all");
+	@Test
+	@DisplayName("테스트3")
+	@Tag("fast")
+	void test3() {
+		System.out.println("test3");
 	}
-  
-	@BeforeEach
-	void beforeEach() {
-		System.out.println("Before each");
+	
+	@Test
+	@DisplayName("테스트2")
+	@Tag("slow")
+	void test2() {
+		System.out.println("test2");
 	}
-  
-	@AfterEach
-	void afterEach() {
-		System.out.println("After each");
+	
+	@Test
+	@DisplayName("테스트4")
+	@Tag("slow")
+	void test4() {
+		System.out.println("test4");
 	}
+	
+	// 테스트 클래스 안에 있는 여러 테스트가 실행되기 전 딱 한 번만 호출이 된다.
+	// 반드시 static 사용해야 하고, private은 안되는데, default는 되고 return type이 있으면 안된다.
+	/*
+	 * @BeforeAll static void beforeAll() { System.out.println("before all"); }
+	 * 
+	 * @AfterAll static void afterAll() { System.out.println("after all"); }
+	 * 
+	 * @BeforeEach void beforeEach() { System.out.println("Before each"); }
+	 * 
+	 * @AfterEach void afterEach() { System.out.println("After each"); }
+	 */
  
 	
 	
