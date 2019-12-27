@@ -214,5 +214,76 @@
     </profiles>
     ```
     
+
+
+#### JUnit5 - 커스텀 태그
+- JUnit5 애노테이션을 좋바하여 커스텀 태그를 만들 수 있다.
+- 간단하지만 꽤 유용하다.
+- JUnuit5 애노테이션은 메타 에노태이션(@Test, @Tag, @DisplayName, 등등)을 사용할 수 있는데, 따라서 composed 애노테이션을 만들어서 사용할 수 있다. 즉, 커스텀 애노테이션을 만들 때 애노테이션 위에 메타 애노테이션을 사용하면 그게 마치 우리가 만든 애노테이션을 사용하더라도, 동일한 기능이 적용 된다.
+
+```java
+// 이 애노테이션을 사용할 때 이 애노테이션 정보를 런타임까지 유지..
+@Retention(RetentionPolicy.RUNTIME)
+
+// 두 개의 메타 애노테이션을 사용
+@Test
+@Tag("fast")
+// FastTest라는 Composed(여러 개의 다른 애노테이션을 조합해서 만든) 새로운 애노테이션을 만듬!
+public @interface FastTest {
+
+}
+
+class StudyTest {
+	// @FastTest를 사용하면 @FastTest에 설정한 메타 애노테이션 정보를 간단히 사용 가능
+	// 만약 @Tag("fast")로 한다면 안에 있는 문자열은 Type Safe 하지 않다. 즉 오타가 나서 원하는대로 동작하지 않을 수 있다. 따라서 커스터마이징한 태그를 만들어 사용할 수 있다.
+	@FastTest 
+	void customizingTag1() {
+		log.info("test fast customizingTag");
+	}
+}
+```
+
+
+
+#### JUnit5 - 테스트 반복하기.
+- @RepeatedTest
+    - 반복 횟수와 반복 테스트 이름 설정 가능
+      - {displayName}
+      - {currentRepetition}
+      - {totalRepetitions}
+    - RepetitionInfo 타입의 인자를 받을 수 있다.
     
+    ```java
+    // 반복할 횟수: 10
+	// @RepeatedTest(10)
+	// value: 반복할 횟수, name 반복되는 list들의 이름 지정
+	@RepeatedTest(value=10, name="{displayName}, {currentRepetition}/{totalRepetitions}")
+	@DisplayName("반복 테스트...")
+	void repeatTest(RepetitionInfo repetitionInfo) {
+		// RepetitionInfo: 인포를 통해 몇 번째 반복인지, 현재 몇번을 반복해야하는지 정보들을 알 수 있다.
+		log.info("test repeated: {} / {}", repetitionInfo.getCurrentRepetition(), repetitionInfo.getTotalRepetitions());
+	}
+    ```
+
+    
+- ParameterizedTest
+    - 테스트에 다른 매개 변수를 대입해가며 반복 실행한다.
+      - {displayName}
+      - {index}
+      - {arguments}
+      - {0}, {1}, ...
+      
+      ```java
+      @DisplayName("스터뒤 만들기 테스트")
+      // 반복적인 테스트마다 다른 값으로 하고 싶은 경우
+      // JUnit5는 기본으로 제공, 4에서는 서드파티? 라이브러리 사용해야 가능
+      @ParameterizedTest(name = "{index} {displayName} message= {0}")
+      // @ValueSource 사용하면 간단하게 파라미터들을 정의할 수 있다.
+      @ValueSource(strings = {"날씨가", "많이", "추워", "그치?"})
+      void parameterizedTest(String message) {
+      	// 위에 4개의 스트링 파라미터가 한 번씩 들어올수 있도록 String message를 정의
+      	log.info("message: {}", message);
+      }
+      ```
+
       
