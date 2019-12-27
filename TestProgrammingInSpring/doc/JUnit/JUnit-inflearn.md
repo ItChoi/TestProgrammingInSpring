@@ -277,6 +277,7 @@ class StudyTest {
       @DisplayName("스터뒤 만들기 테스트")
       // 반복적인 테스트마다 다른 값으로 하고 싶은 경우
       // JUnit5는 기본으로 제공, 4에서는 서드파티? 라이브러리 사용해야 가능
+      {0}에서 0은 파라미터 0번째(message)를 참조하는 것
       @ParameterizedTest(name = "{index} {displayName} message= {0}")
       // @ValueSource 사용하면 간단하게 파라미터들을 정의할 수 있다.
       @ValueSource(strings = {"날씨가", "많이", "추워", "그치?"})
@@ -286,4 +287,135 @@ class StudyTest {
       }
       ```
 
+- 인자 값들의 소스
+    - @ValueSource
+    - @NullSource, @EmptySource, @NullAndEmptySource
+    - @EnumSource
+    - @MethodSource
+    - @CvsSource
+    - @CvsFileSource
+    - @ArgumentSource
+    <br/>
+    
+- 인자 값 타입 변환
+    - 암묵적 타입 변환
+      - [공식 홈 참조](https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests "참조")
+      <br/>
+    - 명시적 타입 변환
+      - SimpleArgumentConverter 상속받은 구현체 제공
+      - @ConvertWith
+      <br/>
+      
+    - 인자 값 조합
+      - ArgumentAccessor: 인자 값을 조합해서 하나로 만들어준다.
+      - 커스텀 Accessor
+        - ArgumentsAggregator 인터페이스 구현
+        - @AggregateWith
+
+        
+```java
+@DisplayName("스터디 만들귀귀귀")
+@ParameterizedTest(name="{index} {displayName} message={0}")
+// @ValueSource(strings={"날씨가", "많이", "추워", "요!!"})
+@ValueSource(ints={10, 20, 40})
+// 빈 문자열을 하나 더 인자로 추가!
+// @EmptySource
+// null을 하나 더 인자로 추가!
+// @NullSource
+// null하고 빈 문자열을 하나씩 추가, null, empty 하나씩만 적용 된다. 
+// @NullAndEmptySource
+void parameterizedTest1(/* String message */ /* Integer limit */ @ConvertWith(StudyConverter.class) Study study) {
+	// log.info(message);
+	// log.info("{}", limit);
+	// log.info("{}", study.getLimit());
+	log.info("{}", study.getLimit());
+}
+
+// SimpleArgumentConverter는 다른 타입으로 변환을 하나의 arg에만 적용 
+static class StudyConverter extends SimpleArgumentConverter {
+
+	@Override
+	protected Object convert(Object source, Class<?> targetType) throws ArgumentConversionException {
+		// targetType이 Study인지 확인! (스터디로만 변환 가능)
+		assertEquals(Study.class, targetType, "Can only convert to Study zzz");
+		
+		// 리턴 값을 받을 땐 해당 파라미터에 @ConvertWith로 알려줘야 한다.
+		return new Study(Integer.parseInt(source.toString()));
+	}
+	
+}
+
+// @CsvSource: 여러 인자를 넘겨줄 수 있다. 기본 구분자는 콤마
+@DisplayName("스터뒤이잉 만들기")
+@ParameterizedTest(name = "{index} {displayName} message={0}")
+@CsvSource({"10, '자바 스터디'", "20, 스프링"})
+void parameterizedTest2(/* Integer limit, String name */ /* ArgumentsAccessor argumentsAccessor */ @AggregateWith(StudyAggregator.class) Study study) {
+	// Study study = new Study(limit, name);
+	// log.info("{}", study);
+	
+	// ArgumentAccessor: 인자 값을 조합해서 하나로 만들어준다.
+	// Study study = new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1));
+	// log.info("{}", study.toString());
+	
+	// 위 작업을 더 줄이고 싶다면 costom한 aggregator을 만들어준다.
+	log.info("{}", study);
+}
+
+
+// 만들기 위한 제약조건(or)
+// 1. 반드시 static inner class
+// 2. public 클래스 여야 한다.
+static class StudyAggregator implements ArgumentsAggregator {
+
+	@Override
+	public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext context)
+			throws ArgumentsAggregationException {
+		// 리턴 값을 받을 땐 해당 파라미터에 @AggregateWith으로 알려줘야 한다.
+		return new Study(accessor.getInteger(0), accessor.getString(1));
+	}
+	
+}
+
+
+
+public class Study {
+	private StudyStatus status = StudyStatus.DRAFT;
+	//private StudyStatus status;
+	
+	private int limit;
+	
+	private String name;
+	
+	public Study(int limit, String name) {
+		this.limit = limit;
+		this.name = name;
+	}
+
+	public Study(int limit) {
+		if (limit < 0) {
+			throw new IllegalArgumentException("limit은 0보다 커야 함.");
+		}
+		this.limit = limit;
+	}
+	
+	public StudyStatus getStatus() {
+		return this.status;
+	}
+
+	public int getLimit() {
+		return limit;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "Study [status=" + status + ", limit=" + limit + ", name=" + name + "]";
+	}
+}
+```        
+          
+    
       

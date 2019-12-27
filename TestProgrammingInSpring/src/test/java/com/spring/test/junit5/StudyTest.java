@@ -1,6 +1,7 @@
 package com.spring.test.junit5;
 
 import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import org.junit.jupiter.api.AfterAll;
@@ -15,7 +16,19 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.converter.SimpleArgumentConverter;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.suite.api.ExcludeTags;
 import org.junit.platform.suite.api.IncludeTags;
@@ -130,6 +143,7 @@ class StudyTest {
 	 * @SlowTest void customizingTag2() { log.info("test slow customizingTag"); }
 	 */
 	
+	@Disabled
 	// 반복할 횟수: 10
 	// @RepeatedTest(10)
 	// value: 반복할 횟수, name 반복되는 list들의 이름 지정
@@ -140,16 +154,86 @@ class StudyTest {
 		log.info("test repeated: {} / {}", repetitionInfo.getCurrentRepetition(), repetitionInfo.getTotalRepetitions());
 	}
 
+	@Disabled
 	@DisplayName("스터뒤 만들기 테스트")
 	// 반복적인 테스트마다 다른 값으로 하고 싶은 경우
 	// JUnit5는 기본으로 제공, 4에서는 서드파티? 라이브러리 사용해야 가능
+	// {0}에서 0은 파라미터 0번째(message)를 참조하는 것
 	@ParameterizedTest(name = "{index} {displayName} message= {0}")
 	// @ValueSource 사용하면 간단하게 파라미터들을 정의할 수 있다. 
-	@ValueSource(strings = {"날씨가", "많이", "추워", "그치?"})
+	@ValueSource(strings={"날씨가", "많이", "추워", "그치?"})
 	void parameterizedTest(String message) {
 		// 위에 4개의 스트링 파라미터가 한 번씩 들어올수 있도록 String message를 정의
 		log.info("message: {}", message);
 	}
+	
+	
+	
+	@DisplayName("스터디 만들귀귀귀")
+	@ParameterizedTest(name="{index} {displayName} message={0}")
+	// @ValueSource(strings={"날씨가", "많이", "추워", "요!!"})
+	@ValueSource(ints={10, 20, 40})
+	// 빈 문자열을 하나 더 인자로 추가!
+	// @EmptySource
+	// null을 하나 더 인자로 추가!
+	// @NullSource
+	// null하고 빈 문자열을 하나씩 추가, null, empty 하나씩만 적용 된다. 
+	// @NullAndEmptySource
+	void parameterizedTest1(/* String message */ /* Integer limit */ @ConvertWith(StudyConverter.class) Study study) {
+		// log.info(message);
+		// log.info("{}", limit);
+		// log.info("{}", study.getLimit());
+		log.info("{}", study.getLimit());
+	}
+	
+	// SimpleArgumentConverter는 다른 타입으로 변환을 하나의 arg에만 적용 
+	static class StudyConverter extends SimpleArgumentConverter {
+
+		@Override
+		protected Object convert(Object source, Class<?> targetType) throws ArgumentConversionException {
+			// targetType이 Study인지 확인! (스터디로만 변환 가능)
+			assertEquals(Study.class, targetType, "Can only convert to Study zzz");
+			
+			// 리턴 값을 받을 땐 해당 파라미터에 @ConvertWith로 알려줘야 한다.
+			return new Study(Integer.parseInt(source.toString()));
+		}
+		
+	}
+	
+	// @CsvSource: 여러 인자를 넘겨줄 수 있다. 기본 구분자는 콤마
+	@DisplayName("스터뒤이잉 만들기")
+	@ParameterizedTest(name = "{index} {displayName} message={0}")
+	@CsvSource({"10, '자바 스터디'", "20, 스프링"})
+	void parameterizedTest2(/* Integer limit, String name */ /* ArgumentsAccessor argumentsAccessor */ @AggregateWith(StudyAggregator.class) Study study) {
+		// Study study = new Study(limit, name);
+		// log.info("{}", study);
+		
+		// ArgumentAccessor: 인자 값을 조합해서 하나로 만들어준다.
+		// Study study = new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1));
+		// log.info("{}", study.toString());
+		
+		// 위 작업을 더 줄이고 싶다면 costom한 aggregator을 만들어준다.
+		log.info("{}", study);
+	}
+	
+	
+	// 만들기 위한 제약조건(or)
+	// 1. 반드시 static inner class
+	// 2. public 클래스 여야 한다.
+	static class StudyAggregator implements ArgumentsAggregator {
+
+		@Override
+		public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext context)
+				throws ArgumentsAggregationException {
+			// 리턴 값을 받을 땐 해당 파라미터에 @AggregateWith으로 알려줘야 한다.
+			return new Study(accessor.getInteger(0), accessor.getString(1));
+		}
+		
+	}
+	
+	
+	
+	
 	
 	
 }
