@@ -415,7 +415,94 @@ public class Study {
 		return "Study [status=" + status + ", limit=" + limit + ", name=" + name + "]";
 	}
 }
-```        
-          
+```
+
+        
+### JUnit5 - 테스트 인스턴스
+- JUnit은 테스트 메소드마다 테스트 인스턴스를 새로 만든다.
+    - 이거쉬 기본전략
+    - 독립적 실행으로 인해 예쌍치 못한 부작용 방지
+    - 이 전략은 JUnit5에서 변경 가능
+    <br/>
     
+- @TestInstance (Lifecycle.PER_CLASS)
+    - 테스트 클래스당 인스턴스 하나만 만들어 사용
+    - 경우에 따라 공유 상태를 @BeforeEach 또는 @AfterEach에 초기화 할 필요가 생김
+    - @BeforeAll과 @AfterAll을 인스턴스 메소드 또는 인터페이스에 정의한 default 메소드로 정의 가능
+    <br/>
+    
+- JUnit5의 테스트 메서드를 실행하려면 테스트 클래스의 인스턴스를 만들어야 하는데, 기본 전략은 클래스 안 테스트 메서드 마다 인스턴스를 생성한다. 즉, 멤버 변수(int val = 1;)를 테스트 메소드 두 곳에서 수정을 시켜도 처음에 1을 가져온다.(공유 X) - 테스트 마다 의존성을 줄이기 위함, 전체 테스트를 할 경우 테스트 순서는 ASC(오름차순)이 아니다. 내부적으로 순서가 있고 그 원리에 의해 작동하긴 한다.
+    <br/>
+
+```java
+// 클래스 마다 인스턴스를 생성 (멤버 변수 공유 가능), 
+// 이 애노테이션을 사용하면 @BeforeAll, @AfterAll을 만들어 사용할 때
+// 반드시 static으로 만들었어야 했는데, static을 없이 사용할 수 있게 된다.
+// 인스턴스를 클래스당 하나를 사용할 경우 유용한 경우가 있다. 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class StudyTest { 
+int value = 1;
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부1")
+	void test_instance1() {
+		System.out.println(this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
+	
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부2")
+	void test_instance2() {
+		System.out.println(this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
+}
+```
+    
+    
+### JUnit5 - 테스트 순서
+- 내부적으로 테스트 메서드 실행 순서는 있지만, 내부 순서가 개발자 입장에서는 분명하지 않다. 따라서 작성 순서에 의존하면 안된다.
+- 경우에 따라 특정 순서대로 테스트를 실행하고 싶을 땐, @TestInstance(TestInstance.Lifecycle.PER_CLASS)와 함께 @TestMethodOrder를 사용할 수 있다.
+    - MethodOrderer 구현체 설정
+    - 기본 구현체
+      - Alphanumeric
+      - OrderAnnotation
+      - Random
+      <br/>
       
+
+```java
+// 클래스 마다 인스턴스를 생성 (멤버 변수 공유 가능), 
+// 이 애노테이션을 사용하면 @BeforeAll, @AfterAll을 만들어 사용할 때
+// 반드시 static으로 만들었어야 했는데, static을 없이 사용할 수 있게 된다.
+// 내부 순서를 위해 이 애노테이션이 있어야 순서를 보장하는 것은 아니다. 즉, @TestMethodOrder로만 순서가 보장이 된다.
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// 테스트 메서드 작동 순서 조작
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class StudyTest {
+int value = 1;
+	
+	@Order(1)
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부1")
+	void test_instance1() {
+		System.out.println("1: " + this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
+
+	@Order(2)
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부2")
+	void test_instance2() {
+		System.out.println("2: " + this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
+}
+```

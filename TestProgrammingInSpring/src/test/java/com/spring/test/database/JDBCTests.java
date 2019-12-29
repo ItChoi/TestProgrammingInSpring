@@ -1,12 +1,11 @@
 package com.spring.test.database;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+import org.apache.ibatis.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +30,24 @@ class JDBCTests {
 	void testConnection() {
 		
 		try {
-			// TODO 테스트 더하기
-			Properties properties = new Properties();
-			FileReader resources = new FileReader("/resources/properties/config.properties");
+			// 외부 properties 읽기
+			// Properties properties = new Properties();
+			// FileReader resources = new FileReader("/resources/properties/config.properties");
+			// properties.load(resources);
 			
-			properties.load(resources);
+			// 내부 properties 읽기
+			Properties properties = new Properties();
+			String resource = "properties/config.properties";
+			// mybatis dependency를 추가해야 Resources.getResourceAsReader(resource) 사용 가능
+			Reader reader = Resources.getResourceAsReader(resource);
+			properties.load(reader);
+			
 			
 			Connection con = DriverManager.getConnection(
 					properties.getProperty("jdbc.url"),
 					properties.getProperty("jdbc.username"),
 					properties.getProperty("jdbc.password")
 			);
-			
 			
 		} catch(Exception e) {
 			log.info("에러 메시지: {}", e);

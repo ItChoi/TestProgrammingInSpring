@@ -1,5 +1,6 @@
 package com.spring.test.junit5;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumingThat;
@@ -12,10 +13,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
@@ -37,11 +42,18 @@ import org.slf4j.LoggerFactory;
 
 // 언더스코어를 빈 공백 문자로 치환
 // @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@ExcludeTags("fast")
-@IncludeTags("slow")
+// @ExcludeTags("fast")
+// @IncludeTags("slow")
+// 클래스 마다 인스턴스를 생성 (멤버 변수 공유 가능), 
+// 이 애노테이션을 사용하면 @BeforeAll, @AfterAll을 만들어 사용할 때
+// 반드시 static으로 만들었어야 했는데, static을 없이 사용할 수 있게 된다. 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// 테스트 메서드 작동 순서 조작
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudyTest {
 	
 	private static final Logger log = LoggerFactory.getLogger(Study.class);
+	
 
 	@Test
 	@Disabled
@@ -232,7 +244,27 @@ class StudyTest {
 	}
 	
 	
+	int value = 1;
 	
+	@Order(1)
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부1")
+	void test_instance1() {
+		System.out.println("1: " + this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
+
+	@Order(2)
+	@FastTest
+	@DisplayName("스터디 만들기 인스턴스 공부2")
+	void test_instance2() {
+		System.out.println("2: " + this);
+		System.out.println(value++);
+		Study actual = new Study(1);
+		System.out.println(value);
+	}
 	
 	
 	
