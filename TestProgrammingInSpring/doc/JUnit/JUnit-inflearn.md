@@ -506,3 +506,165 @@ int value = 1;
 	}
 }
 ```
+
+
+
+### JUnit5 - junit-platform.properties
+- JUnit 설정 파일로, 클래스패스 루트 (src/test/resources/)에 넣어두면 적용된다.
+- 테스트 인스턴스 라이프사이클 설정
+    - junit.jupiter.testinstance.lifecycle.default = per_class
+- 확장팩 자동 감지 기능
+    - 자동 감지 기능 default는 false다.
+    - junit.jupiter.extensions.autodetection.enabled = true
+- @Disabled 무시하고 실행하기
+    - junit.jupiter.conditions.deactivate = org.junit.*DisabledCondition
+- 테스트 이름 표기 전략 설정
+    - junit.jupiter.displayname.generator.default = \org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores
+        
+        
+
+### JUnit5 - 확장 모델
+- JUnit4의 확장 모델은 @RunWith(Runner), TestRule, MethodRole
+- JUnit5의 확장 모델은 단 하나, Extension
+- 확장 팩 등록 방법
+    - 선언적인 등록 @ExtendWith
+    - 프로그래밍 등록 @RegisterExtension
+    - 자동 등록 자바 ServiceLoader 이용
+- 확장팩 만드는 방법    
+    - 테스트 실행 조건
+    - 테스트 인스턴스 팩토리
+    - 테스트 인스턴스 후.처리기
+    - 테스트 매개변수 리졸버
+    - 테스트 라이프사이클 콜백
+    - 예외 처리
+    - ...
+- 참조
+    - [https://junit.org/junit5/docs/current/user-guide/#extensions](https://junit.org/junit5/docs/current/user-guide/#extensions "참조1")
+    <br/><br/><br/>
+    
+    
+- @SlowTest 애노테이션이 붙어있지 않지만, 작업이 오래 걸리는 경우 @SlowTest를 사용하라고 권장하게 만들기
+
+```java
+// ************** 방법 (1) - 선언적인 등록 @ExtendWith **************
+// BeforeTestExecutionCallback, AfterTestExecutionCallback 구현하기.
+public class FindSlowTestExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+	// 1초
+	private static final long THRESHOLD = 1000L;
+	
+	@Override
+	public void beforeTestExecution(ExtensionContext context) throws Exception {
+		// ExtensionContext - store 인터페이스가 있는데, 데이터를 넣고 뺴는 용도
+		ExtensionContext.Store store = getStore(context);
+		store.put("START_TIME", System.currentTimeMillis());
+	}
+	
+	@Override
+	public void afterTestExecution(ExtensionContext context) throws Exception {
+		Method requiredTestMethod = context.getRequiredTestMethod();
+		
+		SlowTest annotation = requiredTestMethod.getAnnotation(SlowTest.class);
+		
+		String testMethodName = context.getRequiredTestMethod().getName();
+		
+		// ExtensionContext - store 인터페이스가 있는데, 데이터를 넣고 뺴는 용도
+		ExtensionContext.Store store = getStore(context);
+		// START_TIME을 지움과 동시에 값을 long 타입으로 받으면 현재 시간을 가지고 올 수 있다.
+		long startTime = store.remove("START_TIME", long.class);
+		// 현재시간에서 뺴면 얼마나 걸렸는지 구한다.
+		long duration = System.currentTimeMillis() - startTime;
+		
+		// 작업 시간이 1초를 넘기면 @SlowTest를 붙이라고 권장.
+		if (duration > THRESHOLD && annotation == null) {
+			System.out.printf("Please consider mark method [%s] with @SlowTest.\n", testMethodName);
+		}
+	}
+	
+	private ExtensionContext.Store getStore(ExtensionContext context) {
+		// 테스트 클래스 이름 + 메소드 이름 조합한 네임스페이스
+		String testClassName = context.getRequiredTestClass().getName();
+		String testMethodName = context.getRequiredTestMethod().getName();
+		
+		return context.getStore(ExtensionContext.Namespace.create(testClassName, testMethodName));
+	}
+}
+
+
+
+// 위에 만든 Extension 사용!
+// 먼저 위에 Extension 클래스를 사용하겠다고 선언
+@ExtendWith(FindSlowTestExtension.class)
+class StudyTest {
+
+	// 1초 이상이 걸리기 때문에 FindSlowTestExtension 클래스의 로직을 타서 @SlowTest 애노테이션을 붙이라고 권장한다.
+	@Test
+	@DisplayName("스터디 만들기 Extension 공부")
+	void test_extension() throws InterruptedException {
+		Thread.sleep(1005L);
+	}
+	
+}
+
+
+
+
+
+// ************** 방법 (2) - 프로그래밍 등록 @RegisterExtension **************
+// 이 방법이 있는 이유는 애노테이션으로 등록하면 인스턴스(FindSlowTestExtension)를 커스터마이징을 할 수가 없다.
+// 즉 FindSlowTestExtension는 기본 default 생성자로 만드는 것인데, 위 THRESHOLD라는 제한 시간을 값을 받는 생성자를 만들 경우, 값을 받을 방법이 없다.
+// 
+
+public class FindSlowTestExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+
+	private long THRESHOLD;
+	
+	public FindSlowTestExtension(long tHRESHOLD) {
+		super();
+		THRESHOLD = tHRESHOLD;
+	}
+	
+}
+
+
+
+
+class StudyTest {
+	// 필드에 정의
+	// static으로 정의해야 한다.
+	// 코딩으로 설정을 해야 한다면 이런 방식으로
+	@RegisterExtension
+	static FindSlowTestExtension FindSlowTestExtension = new FindSlowTestExtension(1000L);
+	
+	@Test
+	@DisplayName("스터디 만들기 Extension 공부")
+	void test_extension() throws InterruptedException {
+		Thread.sleep(1005L);
+	}
+}
+
+
+
+// ************** 방법 (2) - 자동 등록 자바 ServiceLoader 이용 **************
+// 이 방법은 넘어갔음.. 명시적 선언이 더 좋다고 함. 잘 알고 쓰지 않으면 예상치 못한 예외 발생 확률도 있다
+```
+
+
+### JUnit5 - JUnit4 마이그레이션
+- junit-vintage-engine을 의존성으로 추가하면, JUnit5의 junit-platform으로 JUnit 3과 4로 작성된 테스트를 실행할 수 있다.
+    - @Rule은 기본적으로 지원하지 않지만, junit-jupiter-migrationsupport 모듈이 제공하는 @EnableRuleMigrationSupport를 사용하면 다음 타입의 Rule을 지원한다.
+      - ExternalResource
+      - Verifier
+      - ExpectedException
+      <br/>
+      
+JUnit4 | JUnit5
+---------|---------
+@Category(Class) | @Tag(String)
+@RunWith, @Rule, @ClassRule | @ExtendWith, @RegisterExtension
+@Ignore | @Displayed
+@Before, @After, @BeforeClass, @AfterClass | @BeforeEach, @AfterEach, @BeforeAll, @AfterAll      
+
+      
+
+        
+        

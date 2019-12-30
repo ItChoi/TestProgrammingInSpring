@@ -1,5 +1,8 @@
 package com.spring.test.Object01;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class 객체지향설계연습01_카페 {
 	
 	// 객체지향 설계 첫 번째 연습 (카페)
@@ -31,7 +34,10 @@ public class 객체지향설계연습01_카페 {
 	 * 
 	 */
 	
+	private static final Logger log = LoggerFactory.getLogger(객체지향설계연습01_카페.class);
+	
 	public static void main(String[] args) {
+		
 		
 	}
 	
@@ -42,13 +48,33 @@ class SangHyunCafe {
 	 * - 행위
 	 * 1. 손님 입장
 	 * 2. 손님 퇴장
-	 * 3. 자리 착석
 	 * 
 	 */
 	
-	// 변수
 	
 	
+	
+}
+
+class TablesAndChairs {
+	/**
+	 * - 상황
+	 * 1. 테이블 하나당 놓을 수 있는 의자의 개수는 2 ~ 4개 
+	 * 2. 테이블 2개가 붙을 경우 의자의 개수는 4 ~ 6개
+	 * 3. 손님은 카페를 들어온 시점에 같이 들어온 인원을 기준으로 자리에 착석 또는 웨이팅한다.
+	 * 4. 음료가 나오기 전까지 착석하는 손님, 자리 착석 손님으로 나뉜다.
+	 * 
+	 * - 로직
+	 * 1. 인원 수에 따라 테이블 및 의자 계산 남은 개수 확인
+	 * 2. 테이블 인덱스를 지정하여 몇명이 앉았는지 추가
+	 * 3. 나갈 때 테이블 인덱스에 일부 / 전체가 나가는지 확인하여 계산
+	 * 
+	 * 
+	 * - 행위
+	 * 1. 자리 착석
+	 * 2. 자리 나감
+	 */
+
 }
 
 class Menu {
