@@ -38,7 +38,67 @@ public class 객체지향설계연습01_카페 {
 }
 
 class SangHyunCafe {
+	/**
+	 * - 행위
+	 * 1. 손님 입장
+	 * 2. 손님 퇴장
+	 * 3. 자리 착석
+	 * 
+	 */
+	
+	// 변수
+	
 	
 }
 
+class Menu {
+	
+}
 
+interface Beverage {
+	
+}
+
+class Coffee {
+	
+}
+
+class Smoothie {
+	
+}
+
+class Juice {
+	
+}
+
+class IceCream {
+	
+}
+
+class Bread {
+	
+}
+
+interface Employee {
+	
+}
+
+class Manager {
+	
+}
+
+class Staff {
+	
+}
+
+class PartTime {
+	
+}
+
+class Kiosk {
+	
+}
+
+interface Order {
+	
+}

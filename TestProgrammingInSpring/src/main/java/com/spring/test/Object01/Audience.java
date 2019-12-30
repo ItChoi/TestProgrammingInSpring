@@ -13,6 +13,7 @@ public class Audience {
 	 * public Bag getBag() { return bag; }
 	 */
 	
+	/** 2단계로 추가했지만, 3단계를 위해 주석 - bag에 추가
 	public Long buy(Ticket ticket) {
 		if (bag.hasInvitation()) {
 			bag.setTicket(ticket);
@@ -23,5 +24,8 @@ public class Audience {
 			return ticket.getFee();
 		}
 	}
-	
+	*/
+	public Long buy(Ticket ticket) {
+		return bag.hold(ticket);
+	}
 } 

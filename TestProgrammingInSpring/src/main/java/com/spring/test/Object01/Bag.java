@@ -9,15 +9,26 @@ public class Bag {
 	private Ticket ticket;
 	
 	// Bag은 현금과 초대장을 가진 당첨자, 초대장이 없는 관람객 두 가지 상태
-		// Bag 인스턴스 생성 시점에 제약 강제하도록 생성자 추가
-		public Bag(long amount) {
-			this(null, amount);
+	// Bag 인스턴스 생성 시점에 제약 강제하도록 생성자 추가
+	public Bag(long amount) {
+		this(null, amount);
+	}
+	
+	public Bag(Invitation invitation, long amount) {
+		this.invitation = invitation;
+		this.amount = amount;
+	}
+	
+	public Long hold(Ticket ticket) {
+		if (hasInvitation()) {
+			setTicket(ticket);
+			return 0L;
+		} else {
+			setTicket(ticket);
+			minusAmount(ticket.getFee());
+			return ticket.getFee();
 		}
-		
-		public Bag(Invitation invitation, long amount) {
-			this.invitation = invitation;
-			this.amount = amount;
-		}
+	}
 	
 	// 초대장 여부 판단
 	public boolean hasInvitation() {

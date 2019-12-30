@@ -29,7 +29,9 @@ public class TicketSeller {
 		 */
 		// 3단계
 		// Ticket ticket = ticketOffice.getTicket();
-		ticketOffice.plusAmount(audience.buy(ticketOffice.getTicket()));
+		// 3단계
+		// ticketOffice.plusAmount(audience.buy(ticketOffice.getTicket()));
+		ticketOffice.sellTicketTo(audience);
 		
 	}
 }
