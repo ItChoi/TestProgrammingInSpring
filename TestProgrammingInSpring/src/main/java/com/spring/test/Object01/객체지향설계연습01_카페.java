@@ -137,10 +137,13 @@ class CustomerGroup {
 	// 테이블 번호, 명수, 테이크아웃 상태 
 	private Map<Integer, Map<Integer, String>> customerGroups = new HashMap<>();
 	private TakeOutStatus takeOutStatus;
+	
+	private Employee employee;
+	private Kiosk kiosk;
 
 	// 카페 입장
 	public void inCafe() {
-		
+		checkWating();
 		
 	}
 	
@@ -157,6 +160,12 @@ class CustomerGroup {
 	// 주문
 	public void beverageOrder() {
 		// 주문 - 직원 or 키오스크
+	}
+	
+	// 대기열 있는지 확인
+	public void checkWating() {
+		employee.getOrder();
+		
 	}
 	
 }
@@ -253,19 +262,28 @@ class Bread {
 
 
 interface Employee {
+	// 음료 드림
 	Beverage serveBeverage();
+	// 주문 들어옴
+	int getOrder();
 }
 
 
 @Getter
 @Setter
 class Manager implements Employee {
+	private int orderWating = 0;
 	private Beverage beverage;
 
 	@Override
 	public Beverage serveBeverage() {
 		
 		return beverage.getBeverage();
+	}
+
+	@Override
+	public int getOrder() {
+		return 0;
 	}
 	
 }
@@ -274,12 +292,18 @@ class Manager implements Employee {
 @Getter
 @Setter
 class Staff implements Employee {
+	private int orderWating = 0;
 	private Beverage beverage;
-	
+
 	@Override
 	public Beverage serveBeverage() {
 		
-		return null;
+		return beverage.getBeverage();
+	}
+
+	@Override
+	public int getOrder() {
+		return 0;
 	}
 }
 
@@ -287,12 +311,18 @@ class Staff implements Employee {
 @Getter
 @Setter
 class PartTime implements Employee {
+	private int orderWating = 0;
 	private Beverage beverage;
-	
+
 	@Override
 	public Beverage serveBeverage() {
 		
-		return null;
+		return beverage.getBeverage();
+	}
+
+	@Override
+	public int getOrder() {
+		return 0;
 	}
 }
 
@@ -300,6 +330,8 @@ class PartTime implements Employee {
 @Getter
 @Setter
 class Kiosk {
+	// 대기 손님
+	private int orderWating = 0;
 	
 }
 
