@@ -32,6 +32,14 @@ public class MainClass {
 				)
 		);
 		
+		Movie starWars = new Movie(
+				"스타워즈", 
+				Duration.ofMinutes(210), 
+				Money.wons(10000), 
+				new NoneDiscountPolicy()
+		);
+		
+		
 		
 	}
 
