@@ -39,5 +39,31 @@
 - 폴더 및 pom.xml의 이해
     - pom.xml 파일은 메이븐 설정파일로 메이븐은 라이브러리를 연결해주고 빌드를 위한 플랫폼이다.
     
-
+### 첨 해보는 스프링 플젝
+- 스프링은 컨테이너 안에 객체들을 다 모아둔다.
+- 객체를 메모리 로딩을 하긴 하는데, 메모리가 생성될 때 스프링 컨테이너를 만들고, 거기에 필요한 객체를 생성하고, 필요할 때 빼와서 사용한다. 
+- xml에서 bean 정의를 하면 객체가 생성된다. 즉 메모리가 스프링 컨테이너에 로딩된다.
+- 스프링 컨테이너 접근 방법
+    - GenericXmlApplicationContext ctx = new GenericApplicationContext("classpath:applicationContext.xml");
+    - ctx.getBean("id", ClassType.class);
     
+## 또 다른 플젝 생성 방식
+- IDE에 의존하지 않고 직접 만들어보기.
+    1. 폴더(java,resources)와 파일(pom.xml) 만들기
+      - 프로젝트 명 폴더 만들고 src폴더를 만들어준다
+      - src 폴더와 같은 경로에 pom.xml을 만들어준다.
+      - src 폴더 하위 경로에 main을 만들어준다.
+      - main 하위 폴더에 java 및 resources만들어준다.
+    2. 이클립스 import 하기     
+      - import ~
+      
+      
+## DI (Dependency Injection)
+- DI란?
+    - 스프링 뿐만 아니라 OOP에서 사용하는 방법론
+    
+    <br/>
+- 스프링 DI 설정 방법
+    - ㅁㄴㅇㅁㄴㅇ
+
+
