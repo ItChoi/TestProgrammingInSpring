@@ -19,9 +19,10 @@ public class Screening {
 	
 	// 영화 예매 후 예매 정보 담고있는 인스턴스 생성 후 반환
 	// customer: 예매자 정보 / audienceCount: 인원 수
-	public Reservation reserve(Customer customer, int audienceCount) {
-		return new Reservation(customer, this, calculateFee(audienceCount), audienceCount);
-	}
+	/*
+	 * public Reservation reserve(Customer customer, int audienceCount) { return new
+	 * Reservation(customer, this, calculateFee(audienceCount), audienceCount); }
+	 */
 	
 	// 1인당 예매 요금에 audienceCount를 곱한다.
 	private Money calculateFee(int audienceCount) {
