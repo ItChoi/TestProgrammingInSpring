@@ -45,7 +45,7 @@ public class TestCode {
 		for (int i = 0; i < array.length; i++) {
 			for (int j = 0; j < array[i].length; j++) {
 				array[i][j] = checkDuplicationNumber(array, i, j);
-				System.out.printf("%3d", array[i][j]);
+				System.out.printf("%8d", array[i][j]);
 			}
 			System.out.println();
 		}
@@ -53,21 +53,27 @@ public class TestCode {
 	}
 	
 	private int checkDuplicationNumber(int[][] userBingoBoard, int ii, int jj) {
+		/**
+		 * 0, (0,1,2,3,4)
+		 * 1, (0,1,2,3,4)
+		 * 2, (0,1,2,3,4)
+		 * 3, (0,1,2,3,4)
+		 * 4, (0,1,2,3,4)
+		 * 
+		 */
 		boolean duplicationNumber;
 		int number = 0;
 		
 		do {
-			int j = 0;
-			int i = 0;
-			
 			duplicationNumber = false;
 			number = (int) (Math.random() * (25)) + 1;
 			
+			int i = 0;
 			for (; i <= ii; i++) {
+				int j = 0;
 				for (; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) {
 					if (number == userBingoBoard[i][j]) {
 						duplicationNumber = true;
-						//System.out.println("@@중복:" + number + "@@");
 						break;
 					}
 					
@@ -76,14 +82,7 @@ public class TestCode {
 				if (duplicationNumber) {
 					break;
 				}
-				
 			}
-			
-			/*
-			 * if (userBingoBoard[0].length > j && !duplicationNumber) {
-			 * userBingoBoard[ii][jj] = number; }
-			 */
-			
 		} while(duplicationNumber);
 		
 		return number;

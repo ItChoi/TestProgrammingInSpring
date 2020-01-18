@@ -15,10 +15,10 @@ import lombok.Getter;
  */
 public class Main {
 	public static void main(String[] args) {
-		Scanner user1 = new Scanner(System.in);
-		Scanner user2 = new Scanner(System.in);
+		int width = 5;
+		int height = 5;
 		
-		BingoBoard bingoBoard = new BingoBoard(5, 5, 3);
+		BingoBoard bingoBoard = new BingoBoard(width, height, 3);
 		
 		User userInfo1 = new User(bingoBoard);
 		User userInfo2 = new User(bingoBoard);
@@ -26,17 +26,37 @@ public class Main {
 		userInfo1.writerBingoByNumber();
 		userInfo2.writerBingoByNumber();
 		
-		for (int i = 0; i < userInfo1.getUserBingoBoard().length; i++) {
-			for (int j = 0; j < userInfo1.getUserBingoBoard()[0].length; j++) {
-				System.out.print(userInfo1.getUserBingoBoard()[i][j] + " ");
-			}
-			System.out.println();
-		}
+		 // test code
+		 for (int i = 0; i < userInfo1.getUserBingoBoard().length; i++) { for (int j =
+		 0; j < userInfo1.getUserBingoBoard()[0].length; j++) {
+		 System.out.print(userInfo1.getUserBingoBoard()[i][j] + " "); }
+		 System.out.println(); }
+		 
 		
+		/**
+		 * 1. 유저 턴제로 번호 부르면 둘 다 있는 번호 체크
+		 * 2. 가로, 세로, 대각선 빙고 체크
+		 *   - 빙고판, 체크판, 체크판은 x 용도로 쓰자 
+		 * 3. 유저 3개 빙고 먼저하면 승리
+		 *  
+		 */
 		
-		
-		while (userInfo1.getAllBingoCount() == bingoBoard.getEndBingo() ||
-				userInfo2.getAllBingoCount() == bingoBoard.getEndBingo()) {
+		// checkDuplicationNumber
+		 
+		Scanner user1 = new Scanner(System.in);
+		Scanner user2 = new Scanner(System.in);
+			
+		int bingoNumber = 0;
+		while (userInfo1.getBingoCount() == bingoBoard.getEndBingo() ||
+				userInfo2.getBingoCount() == bingoBoard.getEndBingo()) {
+			
+			// TODO::: 가로 세로 대각선 빙고 만들기~
+			// bingoNumber = user1.nextInt();
+			// boolean asd = userInfo1.checkDuplicationNumber(userInfo1.getUserBingoBoard(), width, height, bingoNumber);
+			
+			
+			
+			
 			
 			// checkDuplicationNumber(user1, userInfo1.getBingoBoard()); 
 			
@@ -82,7 +102,7 @@ class User {
 	private int[][] userBingoBoard;
 	private int[][] checkBingo;
 	
-	private int allBingoCount;
+	private int bingoCount;
 	
 	
 	public User(BingoBoard bingoBoard) {
@@ -93,46 +113,68 @@ class User {
 	public void writerBingoByNumber() {
 		for (int i = 0; i < userBingoBoard.length; i++) {
 			for (int j = 0; j < userBingoBoard[0].length; j++) {
-				userBingoBoard[i][j] = checkDuplicationNumber(userBingoBoard, i, j);
+				// userBingoBoard[i][j] = checkDuplicationNumber(userBingoBoard, i, j);
+				userBingoBoard[i][j] = inputRandomValue(userBingoBoard, i, j);
 			}
 		}
 		
 		checkBingo = Arrays.copyOf(userBingoBoard, userBingoBoard.length);
 	}
 	
-	private int checkDuplicationNumber(int[][] userBingoBoard, int ii, int jj) {
+	private int inputRandomValue(int[][] userBingoBoard, int ii, int jj) {
 		boolean duplicationNumber;
 		int number = 0;
 		
 		do {
-			int i = 0;
-			int j = 0;
+			
 			duplicationNumber = false;
 			number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
 			
-			for (; i < ii; i++) {
-				for (; j < jj; j++) {
-					if (number == userBingoBoard[i][j]) {
-						duplicationNumber = true;
-						break;
-					}
-					
-				}
-				
-				if (duplicationNumber) {
-					break;
-				}
-				
-			}
 			
-			if (userBingoBoard[0].length > j) {
-				userBingoBoard[ii][jj] = number;
-			}
+			duplicationNumber = checkDuplicationNumber(userBingoBoard, ii, jj, number);
+			
+			/*
+			 * int i = 0; for (; i < ii; i++) { int j = 0;
+			 * 
+			 * for (; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) { if (number ==
+			 * userBingoBoard[i][j]) { duplicationNumber = true; break; }
+			 * 
+			 * }
+			 * 
+			 * if (duplicationNumber) { break; }
+			 * 
+			 * }
+			 */
 			
 		} while(duplicationNumber);
 		
 		return number;
 	}
+	
+	public boolean checkDuplicationNumber(int[][] userBingoBoard, int wLength, int hLength, int checkValue) {
+		boolean existNumber = false;
+		
+		int i = 0; 
+		for (; i < wLength; i++) { 
+			int j = 0;
+		 
+			 for (; j <= (i == wLength ? hLength : userBingoBoard[i].length-1); j++) { 
+				 if (checkValue == userBingoBoard[i][j]) { 
+					 existNumber = true; 
+					 break; 
+				 }
+			 
+			 }
+		 
+			 if (existNumber) { 
+				 break; 
+			 }
+		 
+		 }
+		
+		return existNumber;
+	}
+	
 	
 }
 
