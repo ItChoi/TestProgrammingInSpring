@@ -1,7 +1,10 @@
 package com.spring.test.bingo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Getter;
 
@@ -10,8 +13,9 @@ import lombok.Getter;
 /**
  * 1. 2명이서 플레이
  * 2. 빙고판 width x height
- * 3. 가로/세로/대각선 줄 채울 시 빙고
- * 4. 빙고 3줄 시 게임 승리
+ * 3. 입력 숫자가 빙고판에 숫자와 일치하면 0으로 변경
+ * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선) 
+ * 5. 빙고 3줄 시 게임 승리
  */
 public class Main {
 	public static void main(String[] args) {
@@ -26,12 +30,6 @@ public class Main {
 		userInfo1.writerBingoByNumber();
 		userInfo2.writerBingoByNumber();
 		
-		 // test code
-		 for (int i = 0; i < userInfo1.getUserBingoBoard().length; i++) { for (int j =
-		 0; j < userInfo1.getUserBingoBoard()[0].length; j++) {
-		 System.out.print(userInfo1.getUserBingoBoard()[i][j] + " "); }
-		 System.out.println(); }
-		 
 		
 		/**
 		 * 1. 유저 턴제로 번호 부르면 둘 다 있는 번호 체크
@@ -42,29 +40,42 @@ public class Main {
 		 */
 		
 		// checkDuplicationNumber
-		 
-		Scanner user1 = new Scanner(System.in);
-		Scanner user2 = new Scanner(System.in);
-			
-		int bingoNumber = 0;
+		bingoBoard.getCheckBingoInfos().forEach((array) -> {
+			System.out.println("userInfo");
+			Arrays.stream(array).forEach((info) -> {
+				Arrays.stream(info).forEach((index) -> {
+					System.out.printf("%4d", index);
+				});
+				
+				System.out.println();
+				
+			});
+			System.out.println();
+		});
+		
+		Scanner inputNumber = new Scanner(System.in);
+		
 		while (userInfo1.getBingoCount() == bingoBoard.getEndBingo() ||
-				userInfo2.getBingoCount() == bingoBoard.getEndBingo()) {
-			
-			// TODO::: 가로 세로 대각선 빙고 만들기~
-			// bingoNumber = user1.nextInt();
-			// boolean asd = userInfo1.checkDuplicationNumber(userInfo1.getUserBingoBoard(), width, height, bingoNumber);
-			
-			
-			
-			
-			
-			// checkDuplicationNumber(user1, userInfo1.getBingoBoard()); 
-			
+				  userInfo2.getBingoCount() == bingoBoard.getEndBingo()) {
+			  
+			int bingoNumber = inputNumber.nextInt();
+			bingoBoard.removeBingoNumber(bingoNumber);
+		  
 		}
+		 
 		
-		
-		
-
+		bingoBoard.getCheckBingoInfos().forEach((array) -> {
+			System.out.println("userInfo");
+			Arrays.stream(array).forEach((info) -> {
+				Arrays.stream(info).forEach((index) -> {
+					System.out.printf("%4d", index);
+				});
+				
+				System.out.println();
+				
+			});
+			System.out.println();
+		});
 		
 	}
 	
@@ -77,6 +88,12 @@ class BingoBoard {
 	private final int totalNumber;
 	
 	private final int endBingo;
+	
+	private List<int[][]> checkBingoInfos = new ArrayList<>();
+	// private List<Integer[][]> checkBingoInfos = new ArrayList<>();
+	
+	// TODO 참석자로 변경하여 진행하기.
+	private List<User> attendanceList; 
 	
 	public BingoBoard() {
 		this.width = 5;
@@ -92,15 +109,45 @@ class BingoBoard {
 		this.totalNumber = this.width * this.height;
 	}
 	
+	public void removeBingoNumber(int bingoNumber) {
+		AtomicInteger increment1 = new AtomicInteger();
+		AtomicInteger increment2 = new AtomicInteger();
+		AtomicInteger increment3 = new AtomicInteger();
+		
+		checkBingoInfos.forEach((array) -> {
+			int index1;
+			index1 = increment1.getAndIncrement();
+			increment2.set(0);
+			
+			
+			Arrays.stream(array).forEach((info) -> {
+				increment3.set(0);
+				int index2;
+				index2 = increment2.getAndIncrement();
+				
+				Arrays.stream(info).forEach((index) -> {
+					int index3;
+					index3 = increment3.getAndIncrement();
+					if (bingoNumber == index) {
+						checkBingoInfos.get(index1)[index2][index3] = 0;
+					}
+				});
+				
+			});
+		});
+		
+	}
+	
 }
-
 
 @Getter
 class User {
 	private BingoBoard bingoBoard;
 	
+	// 모든 유저의 빙고판
+	
 	private int[][] userBingoBoard;
-	private int[][] checkBingo;
+	private int[][] userCheckBingo;
 	
 	private int bingoCount;
 	
@@ -113,12 +160,13 @@ class User {
 	public void writerBingoByNumber() {
 		for (int i = 0; i < userBingoBoard.length; i++) {
 			for (int j = 0; j < userBingoBoard[0].length; j++) {
-				// userBingoBoard[i][j] = checkDuplicationNumber(userBingoBoard, i, j);
 				userBingoBoard[i][j] = inputRandomValue(userBingoBoard, i, j);
 			}
 		}
 		
-		checkBingo = Arrays.copyOf(userBingoBoard, userBingoBoard.length);
+		userCheckBingo = Arrays.copyOf(userBingoBoard, userBingoBoard.length);
+		bingoBoard.getCheckBingoInfos().add(userCheckBingo);
+		// bingoBoard.getCheckBingoInfos().add(Arrays.stream(userCheckBingo).toArray(Integer[][]::new));
 	}
 	
 	private int inputRandomValue(int[][] userBingoBoard, int ii, int jj) {
@@ -126,25 +174,10 @@ class User {
 		int number = 0;
 		
 		do {
-			
 			duplicationNumber = false;
 			number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
 			
-			
 			duplicationNumber = checkDuplicationNumber(userBingoBoard, ii, jj, number);
-			
-			/*
-			 * int i = 0; for (; i < ii; i++) { int j = 0;
-			 * 
-			 * for (; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) { if (number ==
-			 * userBingoBoard[i][j]) { duplicationNumber = true; break; }
-			 * 
-			 * }
-			 * 
-			 * if (duplicationNumber) { break; }
-			 * 
-			 * }
-			 */
 			
 		} while(duplicationNumber);
 		
@@ -163,18 +196,15 @@ class User {
 					 existNumber = true; 
 					 break; 
 				 }
-			 
 			 }
 		 
 			 if (existNumber) { 
 				 break; 
 			 }
-		 
 		 }
 		
 		return existNumber;
 	}
-	
 	
 }
 

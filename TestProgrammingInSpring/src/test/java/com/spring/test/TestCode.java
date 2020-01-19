@@ -1,8 +1,14 @@
 package com.spring.test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 public class TestCode {
@@ -53,14 +59,6 @@ public class TestCode {
 	}
 	
 	private int checkDuplicationNumber(int[][] userBingoBoard, int ii, int jj) {
-		/**
-		 * 0, (0,1,2,3,4)
-		 * 1, (0,1,2,3,4)
-		 * 2, (0,1,2,3,4)
-		 * 3, (0,1,2,3,4)
-		 * 4, (0,1,2,3,4)
-		 * 
-		 */
 		boolean duplicationNumber;
 		int number = 0;
 		
@@ -71,6 +69,7 @@ public class TestCode {
 			int i = 0;
 			for (; i <= ii; i++) {
 				int j = 0;
+				
 				for (; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) {
 					if (number == userBingoBoard[i][j]) {
 						duplicationNumber = true;
@@ -112,5 +111,76 @@ public class TestCode {
 	}
 	
 	
+	@Test
+	public void Integer_테스트() {
+		Integer a = 2;
+		
+		int b = 55;
+
+		// 같: 0, 작: -1, 크: 1
+		int aaa = a.compareTo(b);
+		
+		System.out.println("aaa: " + aaa);
+	}
+	
+	@Test
+	public void Integer_형변환() {
+		int[] a = {1,2,3,4};
+		Integer[] b = Arrays.stream(a).boxed().toArray(Integer[]::new);
+		
+		int[][] aa = {{1,2,3,4}, {5,6,7,8}};
+		Integer[][] bb = Arrays.stream(aa).toArray(Integer[][]::new);
+		
+		// List<int[][]> list new ArrayList<>();
+	}
+	
+	@Test
+	public void 람다_인덱스_테스트() {
+		String[] array = { "G", "e", "e", "k", "s" }; 
+		  
+		// 방법 1
+        AtomicInteger index = new AtomicInteger();   
+        Arrays
+	        .stream(array)              
+	        .map(str -> index.getAndIncrement() + " -> " + str)  // 0부터 시작한다.
+	        .forEach(System.out::println);
+
+        
+        AtomicInteger index1 = new AtomicInteger();
+        int a; 
+        a = index1.getAndIncrement();
+        System.out.println("a: " + a);
+        a = index1.getAndIncrement();
+        System.out.println("aa: " + a);
+        index1.set(0);
+        a = index1.getAndIncrement();
+        System.out.println("aaa: " + a);
+        
+	}
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
