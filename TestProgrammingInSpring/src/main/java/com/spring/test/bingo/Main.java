@@ -7,11 +7,12 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Getter;
+import lombok.Setter;
 
 
 // TODO:: 빙고 게임 만들어보기
 /**
- * 1. 2명이서 플레이
+ * 1. 2인 이상 플레이
  * 2. 빙고판 width x height
  * 3. 입력 숫자가 빙고판에 숫자와 일치하면 0으로 변경
  * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선) 
@@ -21,61 +22,38 @@ public class Main {
 	public static void main(String[] args) {
 		int width = 5;
 		int height = 5;
+		int endBingo = 3;
 		
-		BingoBoard bingoBoard = new BingoBoard(width, height, 3);
+		BingoBoard bingoBoard = new BingoBoard(width, height, endBingo);
 		
-		User userInfo1 = new User(bingoBoard);
-		User userInfo2 = new User(bingoBoard);
+		User userInfo1 = new User("user1", bingoBoard);
+		User userInfo2 = new User("user2", bingoBoard);
 		
 		userInfo1.writerBingoByNumber();
 		userInfo2.writerBingoByNumber();
 		
-		
-		/**
-		 * 1. 유저 턴제로 번호 부르면 둘 다 있는 번호 체크
-		 * 2. 가로, 세로, 대각선 빙고 체크
-		 *   - 빙고판, 체크판, 체크판은 x 용도로 쓰자 
-		 * 3. 유저 3개 빙고 먼저하면 승리
-		 *  
-		 */
-		
-		// checkDuplicationNumber
-		bingoBoard.getCheckBingoInfos().forEach((array) -> {
-			System.out.println("userInfo");
-			Arrays.stream(array).forEach((info) -> {
-				Arrays.stream(info).forEach((index) -> {
-					System.out.printf("%4d", index);
-				});
-				
-				System.out.println();
-				
-			});
-			System.out.println();
-		});
+		bingoBoard.logUserBingoBoardList();
 		
 		Scanner inputNumber = new Scanner(System.in);
 		
-		while (userInfo1.getBingoCount() == bingoBoard.getEndBingo() ||
-				  userInfo2.getBingoCount() == bingoBoard.getEndBingo()) {
-			  
+		boolean endGame = false;
+		do {
 			int bingoNumber = inputNumber.nextInt();
 			bingoBoard.removeBingoNumber(bingoNumber);
-		  
-		}
+			
+			for (User user :  bingoBoard.getAttendanceList()) {
+				if (user.getBingoCount() == endBingo) {
+					endGame = true;
+					break;
+				}
+			}
+			
+		} while(!endGame);
+		
 		 
 		
-		bingoBoard.getCheckBingoInfos().forEach((array) -> {
-			System.out.println("userInfo");
-			Arrays.stream(array).forEach((info) -> {
-				Arrays.stream(info).forEach((index) -> {
-					System.out.printf("%4d", index);
-				});
-				
-				System.out.println();
-				
-			});
-			System.out.println();
-		});
+		System.out.println("\n\n\n=====================result=====================\n");
+		bingoBoard.logUserBingoBoardList();
 		
 	}
 	
@@ -86,14 +64,8 @@ class BingoBoard {
 	private final int width;
 	private final int height;
 	private final int totalNumber;
-	
 	private final int endBingo;
-	
-	private List<int[][]> checkBingoInfos = new ArrayList<>();
-	// private List<Integer[][]> checkBingoInfos = new ArrayList<>();
-	
-	// TODO 참석자로 변경하여 진행하기.
-	private List<User> attendanceList; 
+	private List<User> attendanceList = new ArrayList<>(); 
 	
 	public BingoBoard() {
 		this.width = 5;
@@ -112,47 +84,62 @@ class BingoBoard {
 	public void removeBingoNumber(int bingoNumber) {
 		AtomicInteger increment1 = new AtomicInteger();
 		AtomicInteger increment2 = new AtomicInteger();
-		AtomicInteger increment3 = new AtomicInteger();
 		
-		checkBingoInfos.forEach((array) -> {
-			int index1;
-			index1 = increment1.getAndIncrement();
-			increment2.set(0);
+		attendanceList.stream().forEach((user) -> {
+			increment1.set(0);
 			
-			
-			Arrays.stream(array).forEach((info) -> {
-				increment3.set(0);
-				int index2;
-				index2 = increment2.getAndIncrement();
+			Arrays.stream(user.getUserCheckBingo()).forEach((info) -> {
+				increment2.set(0);
+				int index1;
+				index1 = increment1.getAndIncrement();
 				
 				Arrays.stream(info).forEach((index) -> {
-					int index3;
-					index3 = increment3.getAndIncrement();
+					int index2;
+					index2 = increment2.getAndIncrement();
 					if (bingoNumber == index) {
-						checkBingoInfos.get(index1)[index2][index3] = 0;
+						user.getUserCheckBingo()[index1][index2] = 0;
+						// TODO:: 빙고인지 체크
 					}
 				});
 				
 			});
 		});
+	}
+	
+	private void checkBingoKind() {
 		
+	}
+	
+	public void logUserBingoBoardList() {
+		attendanceList.stream().forEach((user) -> {
+			System.out.println("userInfo");
+			Arrays.stream(user.getUserCheckBingo()).forEach((array) -> {
+				Arrays.stream(array).forEach((info) -> {
+					System.out.printf("%4d", info);
+					
+				});
+				System.out.println();
+			});
+			System.out.println();
+		});
 	}
 	
 }
 
 @Getter
+@Setter
 class User {
 	private BingoBoard bingoBoard;
-	
-	// 모든 유저의 빙고판
+	private Bingo bingo;
 	
 	private int[][] userBingoBoard;
 	private int[][] userCheckBingo;
 	
+	private String userName;
 	private int bingoCount;
 	
-	
-	public User(BingoBoard bingoBoard) {
+	public User(String userName, BingoBoard bingoBoard) {
+		this.userName = userName;
 		this.bingoBoard = bingoBoard;
 		userBingoBoard = new int[bingoBoard.getWidth()][bingoBoard.getHeight()];
 	}
@@ -165,8 +152,7 @@ class User {
 		}
 		
 		userCheckBingo = Arrays.copyOf(userBingoBoard, userBingoBoard.length);
-		bingoBoard.getCheckBingoInfos().add(userCheckBingo);
-		// bingoBoard.getCheckBingoInfos().add(Arrays.stream(userCheckBingo).toArray(Integer[][]::new));
+		bingoBoard.getAttendanceList().add(this);
 	}
 	
 	private int inputRandomValue(int[][] userBingoBoard, int ii, int jj) {
@@ -219,7 +205,8 @@ class WidthBingo implements Bingo {
 
 	@Override
 	public void lineBingo(User user) {
-		
+		user.setBingoCount(user.getBingoCount() + 1);
+		System.out.println(user.getUserName() + ": 가로 빙고 + 1");
 	}
 	
 }
@@ -229,7 +216,8 @@ class HeightBingo implements Bingo {
 
 	@Override
 	public void lineBingo(User user) {
-		
+		user.setBingoCount(user.getBingoCount() + 1);
+		System.out.println(user.getUserName() + ": 세로 빙고 + 1");
 	}
 	
 }
@@ -240,7 +228,8 @@ class DiagonalBingo implements Bingo {
 
 	@Override
 	public void lineBingo(User user) {
-		
+		user.setBingoCount(user.getBingoCount() + 1);
+		System.out.println(user.getUserName() + ": 대각선빙고 + 1");
 	}
 	
 }
