@@ -10,12 +10,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-// TODO:: 빙고 게임 만들어보기
 /**
+ * - 빙고 게임 만들어보기
  * 1. 2인 이상 플레이
  * 2. 빙고판 width x height
  * 3. 입력 숫자가 빙고판에 숫자와 일치하면 0으로 변경
- * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선) 
+ * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선 빙고 체크) 
  * 5. 빙고 3줄 시 게임 승리
  */
 public class Main {
@@ -40,6 +40,8 @@ public class Main {
 		do {
 			int bingoNumber = inputNumber.nextInt();
 			bingoBoard.removeBingoNumber(bingoNumber);
+			
+			bingoBoard.logUserBingoBoardList();
 			
 			for (User user :  bingoBoard.getAttendanceList()) {
 				if (user.getBingoCount() == endBingo) {
@@ -98,16 +100,12 @@ class BingoBoard {
 					index2 = increment2.getAndIncrement();
 					if (bingoNumber == index) {
 						user.getUserCheckBingo()[index1][index2] = 0;
-						// TODO:: 빙고인지 체크
+						user.checkBingo(index1, index2);
 					}
 				});
 				
 			});
 		});
-	}
-	
-	private void checkBingoKind() {
-		
 	}
 	
 	public void logUserBingoBoardList() {
@@ -161,7 +159,8 @@ class User {
 		
 		do {
 			duplicationNumber = false;
-			number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
+			// number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
+			number = (int) (Math.random() * (25)) + 1;
 			
 			duplicationNumber = checkDuplicationNumber(userBingoBoard, ii, jj, number);
 			
@@ -192,6 +191,61 @@ class User {
 		return existNumber;
 	}
 	
+	public void checkBingo(int index1, int index2) {
+		boolean widthBingo = true;
+		boolean heightBingo = true;
+		boolean diagonalBingo1 = true;
+		boolean diagonalBingo2 = true;
+		
+		int k = userCheckBingo.length - 1;
+		for (int j = 0; j < userCheckBingo.length; j++) {
+			if (userCheckBingo[index1][j] != 0 && widthBingo) {
+				widthBingo = false;
+			}
+			
+			if (userCheckBingo[j][index2] != 0 && heightBingo) {
+				heightBingo = false;
+			}
+			
+			
+			// TODO::: 대각선 빙고 다시 짜기
+			if (userCheckBingo[j][j] != 0 && diagonalBingo1) {
+				diagonalBingo1 = false;
+			}
+			
+			// TODO::: 대각선 빙고 다시 짜기			
+			if (userCheckBingo[j][k--] != 0 && diagonalBingo2) {
+				diagonalBingo2 = false;
+			}
+		}
+			
+		if (widthBingo) {
+			bingo = new WidthBingo();
+			bingo.lineBingo(this);
+		}
+		
+		if (heightBingo) {
+			bingo = new HeightBingo();
+			bingo.lineBingo(this);
+		}
+		
+		if (diagonalBingo1) {
+			bingo = new DiagonalBingo();
+			bingo.lineBingo(this);
+		}
+		
+		if (diagonalBingo2) {
+			bingo = new DiagonalBingo();
+			bingo.lineBingo(this);
+		}
+		
+	}
+	
+	private void addBingoCount() {
+		
+	}
+	
+	
 }
 
 
@@ -206,7 +260,7 @@ class WidthBingo implements Bingo {
 	@Override
 	public void lineBingo(User user) {
 		user.setBingoCount(user.getBingoCount() + 1);
-		System.out.println(user.getUserName() + ": 가로 빙고 + 1");
+		System.out.println(user.getUserName() + ": 가로 빙고! 현재 빙고: " + user.getBingoCount());
 	}
 	
 }
@@ -217,7 +271,7 @@ class HeightBingo implements Bingo {
 	@Override
 	public void lineBingo(User user) {
 		user.setBingoCount(user.getBingoCount() + 1);
-		System.out.println(user.getUserName() + ": 세로 빙고 + 1");
+		System.out.println(user.getUserName() + ": 세로 빙고! 현재 빙고: " + user.getBingoCount());
 	}
 	
 }
@@ -229,7 +283,7 @@ class DiagonalBingo implements Bingo {
 	@Override
 	public void lineBingo(User user) {
 		user.setBingoCount(user.getBingoCount() + 1);
-		System.out.println(user.getUserName() + ": 대각선빙고 + 1");
+		System.out.println(user.getUserName() + ": 대각선빙고! 현재 빙고: " + user.getBingoCount());
 	}
 	
 }

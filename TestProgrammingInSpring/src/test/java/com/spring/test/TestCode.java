@@ -158,6 +158,13 @@ public class TestCode {
         
 	}
 	
-	
+	@Test
+	public void 연산_테스트() {
+		int[] a = {-1,2,3,4};
+		int k = a.length - 1;
+		System.out.println("test: " + a[k--]);
+		System.out.println("test: " + a[k--]);
+		System.out.println("test: " + a[0]);
+	}
 	
 }
