@@ -18,6 +18,9 @@ import lombok.Setter;
  * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선 빙고 체크) 
  * 5. 빙고 3줄 시 게임 승리
  */
+// TODO
+// int[][] 대신 Map 사용
+// 비즈니스 로직
 public class Main {
 	public static void main(String[] args) {
 		int width = 5;
@@ -93,7 +96,7 @@ class BingoBoard {
 			Arrays.stream(user.getUserCheckBingo()).forEach((info) -> {
 				increment2.set(0);
 				int index1;
-				index1 = increment1.getAndIncrement();
+				index1 = increment1.getAndIncrement();  
 				
 				Arrays.stream(info).forEach((index) -> {
 					int index2;
@@ -144,7 +147,7 @@ class User {
 	
 	public void writerBingoByNumber() {
 		for (int i = 0; i < userBingoBoard.length; i++) {
-			for (int j = 0; j < userBingoBoard[0].length; j++) {
+			for (int j = 0; j < userBingoBoard[i].length; j++) {
 				userBingoBoard[i][j] = inputRandomValue(userBingoBoard, i, j);
 			}
 		}
@@ -159,8 +162,7 @@ class User {
 		
 		do {
 			duplicationNumber = false;
-			// number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
-			number = (int) (Math.random() * (25)) + 1;
+			number = (int) (Math.random() * (bingoBoard.getTotalNumber() * 2)) + 1;
 			
 			duplicationNumber = checkDuplicationNumber(userBingoBoard, ii, jj, number);
 			
@@ -172,11 +174,9 @@ class User {
 	public boolean checkDuplicationNumber(int[][] userBingoBoard, int wLength, int hLength, int checkValue) {
 		boolean existNumber = false;
 		
-		int i = 0; 
-		for (; i < wLength; i++) { 
-			int j = 0;
-		 
-			 for (; j <= (i == wLength ? hLength : userBingoBoard[i].length-1); j++) { 
+		for (int i = 0; i <= wLength; i++) {
+			
+			 for (int j = 0; j <= (i == wLength ? hLength : userBingoBoard[i].length-1); j++) { 
 				 if (checkValue == userBingoBoard[i][j]) { 
 					 existNumber = true; 
 					 break; 
@@ -195,7 +195,7 @@ class User {
 		boolean widthBingo = true;
 		boolean heightBingo = true;
 		boolean diagonalBingo1 = true;
-		boolean diagonalBingo2 = true;
+		boolean diagonalBingo2 = false;
 		
 		int k = userCheckBingo.length - 1;
 		for (int j = 0; j < userCheckBingo.length; j++) {
@@ -207,16 +207,32 @@ class User {
 				heightBingo = false;
 			}
 			
-			
-			// TODO::: 대각선 빙고 다시 짜기
-			if (userCheckBingo[j][j] != 0 && diagonalBingo1) {
-				diagonalBingo1 = false;
+			if (diagonalBingo1) {
+				if (index1 != index2) {
+					diagonalBingo1 = false;					
+				}
+				
+				if (userCheckBingo[k][k] != 0) {
+					diagonalBingo1 = false;
+				}
 			}
 			
-			// TODO::: 대각선 빙고 다시 짜기			
-			if (userCheckBingo[j][k--] != 0 && diagonalBingo2) {
-				diagonalBingo2 = false;
+			if (!diagonalBingo2) {
+				if (j == index1 && k == index2) {
+					int m = userCheckBingo.length - 1;
+					diagonalBingo2 = true;
+					
+					for (int l = 0; l < userCheckBingo.length; l++) {
+						if (userCheckBingo[l][m] != 0) {
+							diagonalBingo2 = false;
+						}
+						
+						--m;
+					}
+				}
 			}
+			
+			--k;
 		}
 			
 		if (widthBingo) {

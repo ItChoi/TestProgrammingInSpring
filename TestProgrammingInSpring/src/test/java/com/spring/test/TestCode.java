@@ -47,7 +47,6 @@ public class TestCode {
 	@Test
 	public void 배열_중복_테스트() {
 		int[][] array = new int[5][5];
-		int number = 0;
 		for (int i = 0; i < array.length; i++) {
 			for (int j = 0; j < array[i].length; j++) {
 				array[i][j] = checkDuplicationNumber(array, i, j);
@@ -66,11 +65,9 @@ public class TestCode {
 			duplicationNumber = false;
 			number = (int) (Math.random() * (25)) + 1;
 			
-			int i = 0;
-			for (; i <= ii; i++) {
-				int j = 0;
+			for (int i = 0; i <= ii; i++) {
 				
-				for (; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) {
+				for (int j = 0; j <= (i == ii ? jj : userBingoBoard[i].length-1); j++) {
 					if (number == userBingoBoard[i][j]) {
 						duplicationNumber = true;
 						break;
