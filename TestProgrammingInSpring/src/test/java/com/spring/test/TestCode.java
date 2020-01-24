@@ -1,14 +1,13 @@
 package com.spring.test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 public class TestCode {
@@ -162,6 +161,47 @@ public class TestCode {
 		System.out.println("test: " + a[k--]);
 		System.out.println("test: " + a[k--]);
 		System.out.println("test: " + a[0]);
+		Set<Integer> list = new HashSet<>();
+	}
+	
+	@Test
+	public void 자료구조_테스트() {
+		List<String> list = new ArrayList<>();
+		list.add("user1");
+		list.add("user2");
+		list.add("user3");
+		list.add("user4");
+		list.add("user5");
+		제네릭_와일드카드_테스트(list);
+		
+		List<String> list1;
+		List<String> list2 = new ArrayList<>();
+		list1 = list2;
+		
+		자료구조_테스트_LIST(list1);
+		list1.forEach(value -> System.out.println("TEST LIST: " + value));
+	}
+	
+	private void 제네릭_와일드카드_테스트(List<?> list) {
+	//private <T> void 제네릭_와일드카드_테스트(List<T> list) {
+		list.forEach(value -> System.out.println("value: " + value));
+	}
+	
+	private void 자료구조_테스트_LIST(List<String> list) {
+		list.add("11");
+		list.add("22");
+		list.add("33");
+		list.add("44");
+	}
+	
+	@Test
+	public void List_삭제_테스트() {
+		List<String> list = new ArrayList<>();
+		list.add("asd");
+		list.add("asd");
+		System.out.println("length: " + list.size());
+		list.remove(1);
+		System.out.println("length: " + list.size());
 	}
 	
 }

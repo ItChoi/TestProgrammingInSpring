@@ -1,10 +1,11 @@
-package com.spring.test.bingo;
+package com.spring.test.refactoring.bingo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,108 +22,127 @@ import lombok.Setter;
 // TODO
 // int[][] 대신 Map 사용
 // 비즈니스 로직
-public class Main {
+public class Main2 {
 	public static void main(String[] args) {
-		int width = 5;
-		int height = 5;
-		int endBingo = 3;
+		int bingoLength = 5;
+		int endGameCondition = 3;
+		int attendanceNumber = 2;
 		
-		BingoBoard bingoBoard = new BingoBoard(width, height, endBingo);
+		List<String> userNames = new ArrayList<>();
+		userNames.add("최상현");
+		userNames.add("아무개");
 		
-		User userInfo1 = new User("user1", bingoBoard);
-		User userInfo2 = new User("user2", bingoBoard);
-		
-		userInfo1.writerBingoByNumber();
-		userInfo2.writerBingoByNumber();
-		
+		BingoBoard bingoBoard = new BingoBoard(bingoLength, endGameCondition, attendanceNumber, userNames);
+		bingoBoard.initBingoGame();
 		bingoBoard.logUserBingoBoardList();
-		
-		Scanner inputNumber = new Scanner(System.in);
-		
-		boolean endGame = false;
-		do {
-			int bingoNumber = inputNumber.nextInt();
-			bingoBoard.removeBingoNumber(bingoNumber);
-			
-			bingoBoard.logUserBingoBoardList();
-			
-			for (User user :  bingoBoard.getAttendanceList()) {
-				if (user.getBingoCount() == endBingo) {
-					endGame = true;
-					break;
-				}
-			}
-			
-		} while(!endGame);
-		
-		 
-		
-		System.out.println("\n\n\n=====================result=====================\n");
+		bingoBoard.tellBingoNumber();
 		bingoBoard.logUserBingoBoardList();
-		
 	}
-	
 }
 
 @Getter
 class BingoBoard {
-	private final int width;
-	private final int height;
+	private final int bingoLength;
 	private final int totalNumber;
 	private final int endBingo;
-	private List<User> attendanceList = new ArrayList<>(); 
+	private final int attendanceNumber;
+	private final List<String> userNames;
+	private Map<String, User> attendanceList = new HashMap<>();
 	
-	public BingoBoard() {
-		this.width = 5;
-		this.height = 5;
-		this.totalNumber = this.width * this.height;
-		this.endBingo = 3;
+	public BingoBoard(int bingoLength, int endBingo, int attendanceNumber, List<String> userNames) {
+		this.bingoLength = bingoLength;
+		this.endBingo = endBingo;
+		this.totalNumber = this.bingoLength * this.bingoLength;
+		this.attendanceNumber = attendanceNumber;
+		this.userNames = validateUserNames(userNames);
 	}
 	
-	public BingoBoard(int width, int height, int endBingo) {
-		this.width = width;
-		this.height = height;
-		this.endBingo = endBingo;
-		this.totalNumber = this.width * this.height;
+	private List<String> validateUserNames(List<String> userNames) {
+		if (attendanceNumber > userNames.size()) {
+			for (int i = userNames.size(); i < attendanceNumber; i++) {
+				userNames.add("anonymity" + i);
+			}
+		}
+		
+		if (attendanceNumber < userNames.size()) {
+			for (int i = attendanceNumber; i < userNames.size(); i++) {
+				userNames.remove(i);
+			}
+			
+		}
+		
+		return userNames;
+		
 	}
 	
 	public void removeBingoNumber(int bingoNumber) {
-		AtomicInteger increment1 = new AtomicInteger();
-		AtomicInteger increment2 = new AtomicInteger();
-		
-		attendanceList.stream().forEach((user) -> {
-			increment1.set(0);
+		userNames.forEach(userName -> {
+			User user = attendanceList.get(userName);
 			
-			Arrays.stream(user.getUserCheckBingo()).forEach((info) -> {
-				increment2.set(0);
-				int index1;
-				index1 = increment1.getAndIncrement();  
-				
-				Arrays.stream(info).forEach((index) -> {
-					int index2;
-					index2 = increment2.getAndIncrement();
-					if (bingoNumber == index) {
-						user.getUserCheckBingo()[index1][index2] = 0;
-						user.checkBingo(index1, index2);
+			int[][] userCheckBingo = user.getUserCheckBingo();
+			
+			for (int i = 0; i < userCheckBingo.length; i++) {
+				for (int j = 0; j < userCheckBingo[i].length; j++) {
+					if (bingoNumber == userCheckBingo[i][j]) {
+						userCheckBingo[i][j] = 0;
+						user.checkBingo(i, j);
 					}
-				});
-				
-			});
+				}
+			}
 		});
+		
 	}
 	
 	public void logUserBingoBoardList() {
-		attendanceList.stream().forEach((user) -> {
-			System.out.println("userInfo");
-			Arrays.stream(user.getUserCheckBingo()).forEach((array) -> {
-				Arrays.stream(array).forEach((info) -> {
-					System.out.printf("%4d", info);
-					
-				});
+		userNames.forEach(userName -> {
+			User user = attendanceList.get(userName);
+			int[][] userCheckBingo = user.getUserCheckBingo();
+			
+			System.out.println("닉네임: " + user.getUserName());
+			for (int i = 0; i < userCheckBingo.length; i++) {
+				for (int j = 0; j < userCheckBingo[i].length; j++) {
+					System.out.printf("%4d", userCheckBingo[i][j]);
+				}
 				System.out.println();
-			});
+			}
+			
 			System.out.println();
 		});
+		
+	}
+	
+	public void initBingoGame() {
+		this.userNames.forEach(userName -> {
+			User user = new User(userName, this);
+			user.writerBingoByNumber();
+		});
+	}
+	
+	public void tellBingoNumber() {
+		Scanner inputNumber = new Scanner(System.in);
+		boolean endGame = false;
+		
+		do {
+			int bingoNumber = inputNumber.nextInt();
+			
+			removeBingoNumber(bingoNumber);
+			logUserBingoBoardList();
+			
+			for (int i = 0; i < userNames.size(); i++) {
+				User user = attendanceList.get(userNames.get(i));
+				
+				if (user.getBingoCount() == endBingo) {
+					endGame = true;
+					System.out.println("==========================================");
+					System.out.println("우승자는: " + user.getUserName());
+					System.out.println("==========================================");
+					break;
+				}
+			}
+			
+			
+		} while(!endGame);
+		
 	}
 	
 }
@@ -142,7 +162,7 @@ class User {
 	public User(String userName, BingoBoard bingoBoard) {
 		this.userName = userName;
 		this.bingoBoard = bingoBoard;
-		userBingoBoard = new int[bingoBoard.getWidth()][bingoBoard.getHeight()];
+		userBingoBoard = new int[bingoBoard.getBingoLength()][bingoBoard.getBingoLength()];
 	}
 	
 	public void writerBingoByNumber() {
@@ -153,7 +173,7 @@ class User {
 		}
 		
 		userCheckBingo = Arrays.copyOf(userBingoBoard, userBingoBoard.length);
-		bingoBoard.getAttendanceList().add(this);
+		bingoBoard.getAttendanceList().put(userName, this);
 	}
 	
 	private int inputRandomValue(int[][] userBingoBoard, int ii, int jj) {
