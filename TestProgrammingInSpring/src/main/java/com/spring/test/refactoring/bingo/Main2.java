@@ -125,6 +125,10 @@ class BingoBoard {
 		do {
 			int bingoNumber = inputNumber.nextInt();
 			
+			if (bingoNumber <= 0) {
+				continue;
+			}
+			
 			removeBingoNumber(bingoNumber);
 			logUserBingoBoardList();
 			
@@ -212,16 +216,26 @@ class User {
 	}
 	
 	public void checkBingo(int index1, int index2) {
+		
+		Map<String, Boolean> map = new HashMap<>(); 
+		Arrays.stream(BingoType.values())
+			.forEach(value -> {
+				
+			});
+		
 		boolean widthBingo = true;
 		boolean heightBingo = true;
 		boolean diagonalBingo1 = true;
 		boolean diagonalBingo2 = false;
+		boolean subDiagonalBingo2 = true;
 		
 		int k = userCheckBingo.length - 1;
 		for (int j = 0; j < userCheckBingo.length; j++) {
+			
 			if (userCheckBingo[index1][j] != 0 && widthBingo) {
 				widthBingo = false;
 			}
+			
 			
 			if (userCheckBingo[j][index2] != 0 && heightBingo) {
 				heightBingo = false;
@@ -277,8 +291,34 @@ class User {
 		
 	}
 	
+	
 }
 
+@Getter
+enum BingoType {
+	WIDTH_BINGO("width", new WidthBingo()),
+	HEIGHT_BINGO("height", new WidthBingo()),
+	DIAGONAL_BINGO("diagonal", new WidthBingo()),
+	EMPTY("empty", null);
+	
+	
+	private BingoType(String bingoType, Bingo bingoConstructor) {
+		this.bingoType = bingoType;
+		this.bingoConstructor = bingoConstructor;
+	}
+	
+	private String bingoType;
+	private Bingo bingoConstructor;
+	
+	public static Bingo findBingoConstructor(String code) {
+		return  Arrays.stream(BingoType.values())
+					.filter(value -> code.equals(value.getBingoType()))
+					.map(value -> value.getBingoConstructor())
+					.findAny()
+					.orElse(BingoType.EMPTY.getBingoConstructor());
+	}
+	
+}
 
 interface Bingo {
 	public void lineBingo(User user);
@@ -293,7 +333,6 @@ class WidthBingo implements Bingo {
 		user.setBingoCount(user.getBingoCount() + 1);
 		System.out.println(user.getUserName() + ": 가로 빙고! 현재 빙고: " + user.getBingoCount());
 	}
-	
 }
 
 // 세로 빙고
@@ -304,7 +343,6 @@ class HeightBingo implements Bingo {
 		user.setBingoCount(user.getBingoCount() + 1);
 		System.out.println(user.getUserName() + ": 세로 빙고! 현재 빙고: " + user.getBingoCount());
 	}
-	
 }
 
 
@@ -316,5 +354,4 @@ class DiagonalBingo implements Bingo {
 		user.setBingoCount(user.getBingoCount() + 1);
 		System.out.println(user.getUserName() + ": 대각선빙고! 현재 빙고: " + user.getBingoCount());
 	}
-	
 }

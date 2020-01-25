@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 import org.springframework.util.StringUtils;
+
+import lombok.Getter;
 
 public class TestCode {
 
@@ -204,4 +207,71 @@ public class TestCode {
 		System.out.println("length: " + list.size());
 	}
 	
+	@Test
+	public void ENUM_사용_테스트() {
+		Bingo123 bingo123 = BingoType123.findBingoConstructor("width");
+		bingo123.lineBingo();
+	}
+	
+}
+
+@Getter
+enum BingoType123 {
+	WIDTH_BINGO("width", new WidthBingo123()),
+	HEIGHT_BINGO("height", new HeightBingo123()),
+	DIAGONAL_BINGO("diagonal", new DiagonalBingo123()),
+	EMPTY("empty", null);
+	
+	private String code;
+	private Bingo123 bingo;
+
+	BingoType123(String code, Bingo123 bingo) {
+		this.code = code;
+		this.bingo = bingo;
+	}
+
+	public static Bingo123 findBingoConstructor(String code) {
+		return  Arrays.stream(BingoType123.values())
+					.filter(value -> code.equals(value.getCode()))
+					.map(value -> value.getBingo())
+					.findAny()
+					.orElse(BingoType123.EMPTY.getBingo());
+	}
+	
+	
+	
+	
+}
+
+interface Bingo123 {
+	public void lineBingo();
+}
+
+
+// 가로 빙고
+class WidthBingo123 implements Bingo123 {
+
+	@Override
+	public void lineBingo() {
+		System.out.println("가로 빙고!");
+	}
+}
+
+// 세로 빙고
+class HeightBingo123 implements Bingo123 {
+
+	@Override
+	public void lineBingo() {
+		System.out.println("세로 빙고!");
+	}
+}
+
+
+// 대각선 빙고
+class DiagonalBingo123 implements Bingo123 {
+
+	@Override
+	public void lineBingo() {
+		System.out.println("대각선 빙고!");
+	}
 }
