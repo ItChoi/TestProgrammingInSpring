@@ -221,13 +221,12 @@ class User {
 		Arrays.stream(BingoType.values())
 			.forEach(value -> {
 				
-			});
+		});
 		
 		boolean widthBingo = true;
 		boolean heightBingo = true;
 		boolean diagonalBingo1 = true;
-		boolean diagonalBingo2 = false;
-		boolean subDiagonalBingo2 = true;
+		boolean diagonalBingo2 = true;
 		
 		int k = userCheckBingo.length - 1;
 		for (int j = 0; j < userCheckBingo.length; j++) {
@@ -235,7 +234,6 @@ class User {
 			if (userCheckBingo[index1][j] != 0 && widthBingo) {
 				widthBingo = false;
 			}
-			
 			
 			if (userCheckBingo[j][index2] != 0 && heightBingo) {
 				heightBingo = false;
@@ -251,10 +249,11 @@ class User {
 				}
 			}
 			
-			if (!diagonalBingo2) {
+			if (diagonalBingo2) {
+				
 				if (j == index1 && k == index2) {
+					
 					int m = userCheckBingo.length - 1;
-					diagonalBingo2 = true;
 					
 					for (int l = 0; l < userCheckBingo.length; l++) {
 						if (userCheckBingo[l][m] != 0) {
@@ -263,11 +262,15 @@ class User {
 						
 						--m;
 					}
+				} else {
+					
 				}
 			}
 			
+			
 			--k;
 		}
+		
 			
 		if (widthBingo) {
 			bingo = new WidthBingo();
