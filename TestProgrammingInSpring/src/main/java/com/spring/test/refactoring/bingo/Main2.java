@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.springframework.cglib.core.internal.Function;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,9 +21,6 @@ import lombok.Setter;
  * 4. 가로/세로/대각선 줄 채울 시 빙고 (0으로 가로, 세로, 대각선 빙고 체크) 
  * 5. 빙고 3줄 시 게임 승리
  */
-// TODO
-// int[][] 대신 Map 사용
-// 비즈니스 로직
 public class Main2 {
 	public static void main(String[] args) {
 		int bingoLength = 5;
@@ -216,17 +215,10 @@ class User {
 	}
 	
 	public void checkBingo(int index1, int index2) {
-		
-		Map<String, Boolean> map = new HashMap<>(); 
-		Arrays.stream(BingoType.values())
-			.forEach(value -> {
-				
-		});
-		
 		boolean widthBingo = true;
 		boolean heightBingo = true;
 		boolean diagonalBingo1 = true;
-		boolean diagonalBingo2 = true;
+		boolean diagonalBingo2 = false;
 		
 		int k = userCheckBingo.length - 1;
 		for (int j = 0; j < userCheckBingo.length; j++) {
@@ -249,11 +241,10 @@ class User {
 				}
 			}
 			
-			if (diagonalBingo2) {
-				
+			if (!diagonalBingo2) {
 				if (j == index1 && k == index2) {
-					
 					int m = userCheckBingo.length - 1;
+					diagonalBingo2 = true;
 					
 					for (int l = 0; l < userCheckBingo.length; l++) {
 						if (userCheckBingo[l][m] != 0) {
@@ -262,48 +253,43 @@ class User {
 						
 						--m;
 					}
-				} else {
-					
+				
 				}
 			}
 			
-			
 			--k;
 		}
-		
 			
 		if (widthBingo) {
-			bingo = new WidthBingo();
-			bingo.lineBingo(this);
+			lineBingo(this, BingoType.WIDTH_BINGO.getBingoType());
 		}
 		
 		if (heightBingo) {
-			bingo = new HeightBingo();
-			bingo.lineBingo(this);
+			lineBingo(this, BingoType.HEIGHT_BINGO.getBingoType());
 		}
 		
 		if (diagonalBingo1) {
-			bingo = new DiagonalBingo();
-			bingo.lineBingo(this);
+			lineBingo(this, BingoType.DIAGONAL_BINGO.getBingoType());
 		}
 		
 		if (diagonalBingo2) {
-			bingo = new DiagonalBingo();
-			bingo.lineBingo(this);
+			lineBingo(this, BingoType.DIAGONAL_BINGO.getBingoType());
 		}
 		
 	}
 	
+	private void lineBingo(User user, String bingoType) {
+		BingoType.findBingoConstructor(bingoType).lineBingo(user);;
+	}
 	
 }
 
 @Getter
 enum BingoType {
-	WIDTH_BINGO("width", new WidthBingo()),
-	HEIGHT_BINGO("height", new WidthBingo()),
-	DIAGONAL_BINGO("diagonal", new WidthBingo()),
-	EMPTY("empty", null);
-	
+	WIDTH_BINGO("widthBingo", new WidthBingo()),
+	HEIGHT_BINGO("heightBingo", new WidthBingo()),
+	DIAGONAL_BINGO("diagonalBingo", new WidthBingo()),
+	EMPTY("emptyBingo", null);
 	
 	private BingoType(String bingoType, Bingo bingoConstructor) {
 		this.bingoType = bingoType;
