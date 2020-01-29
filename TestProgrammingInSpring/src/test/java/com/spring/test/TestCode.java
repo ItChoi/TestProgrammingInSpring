@@ -1,5 +1,7 @@
 package com.spring.test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -198,6 +200,21 @@ public class TestCode {
 	}
 	
 	@Test
+	public void 시간_단위_테스트() {
+		System.out.println(
+			getDuration(
+				LocalDateTime.of(2018, 1, 1, 12, 10, 0),
+				LocalDateTime.of(2018, 1, 1, 13, 10, 0)
+			)
+		);
+		
+	}
+	
+	public Duration getDuration(LocalDateTime from, LocalDateTime to) {
+		return Duration.between(from, to);
+	}
+
+	@Test
 	public void List_삭제_테스트() {
 		List<String> list = new ArrayList<>();
 		list.add("asd");
@@ -275,3 +292,4 @@ class DiagonalBingo123 implements Bingo123 {
 		System.out.println("대각선 빙고!");
 	}
 }
+
