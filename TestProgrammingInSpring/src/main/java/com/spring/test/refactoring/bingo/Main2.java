@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +29,7 @@ public class Main2 {
 		
 		List<String> userNames = new ArrayList<>();
 		userNames.add("최상현");
-		userNames.add("아무개");
+		userNames.add("마구미");
 		
 		BingoBoard bingoBoard = new BingoBoard(bingoLength, endGameCondition, attendanceNumber, userNames);
 		bingoBoard.initBingoGame();
@@ -60,13 +62,19 @@ class BingoBoard {
 				userNames.add("anonymity" + i);
 			}
 		}
-		
+		/**
 		if (attendanceNumber < userNames.size()) {
+			// (1)
 			for (int i = attendanceNumber; i < userNames.size(); i++) {
 				userNames.remove(i);
 			}
-			
+			// (2)
+			throw new AttendanceOutofBoundsException("참가 유저명이 참가 총 인원 수를 초과했습니다.");
 		}
+		 */
+		Optional.of(userNames)
+			.filter(user -> user.size() <= attendanceNumber)
+			.orElseThrow(() -> new AttendanceOutofBoundsException("참가 유저명이 참가 총 인원 수를 초과했습니다."));
 		
 		return userNames;
 		
@@ -110,7 +118,8 @@ class BingoBoard {
 	
 	public void initBingoGame() {
 		this.userNames.forEach(userName -> {
-			User user = new User(userName, this);
+			User user = User.builder().userName(userName).bingoBoard(this).build();
+			// User user = new User(userName, this);
 			user.writerBingoByNumber();
 		});
 	}
@@ -118,6 +127,7 @@ class BingoBoard {
 	public void tellBingoNumber() {
 		Scanner inputNumber = new Scanner(System.in);
 		boolean endGame = false;
+		List<String> winnerNames = new ArrayList<>();
 		
 		do {
 			int bingoNumber = inputNumber.nextInt();
@@ -134,15 +144,18 @@ class BingoBoard {
 				
 				if (user.getBingoCount() == endBingo) {
 					endGame = true;
-					System.out.println("==========================================");
-					System.out.println("우승자는: " + user.getUserName());
-					System.out.println("==========================================");
-					break;
+					winnerNames.add(user.getUserName());
 				}
 			}
 			
 			
 		} while(!endGame);
+		
+		for (String winner : winnerNames) {
+			System.out.println("==========================================");
+			System.out.println("빙고 게임 승리: " + winner);
+			System.out.println("==========================================");
+		}
 		
 	}
 	
@@ -160,10 +173,11 @@ class User {
 	private String userName;
 	private int bingoCount;
 	
+	@Builder
 	public User(String userName, BingoBoard bingoBoard) {
 		this.userName = userName;
 		this.bingoBoard = bingoBoard;
-		userBingoBoard = new int[bingoBoard.getBingoLength()][bingoBoard.getBingoLength()];
+		this.userBingoBoard = new int[bingoBoard.getBingoLength()][bingoBoard.getBingoLength()];
 	}
 	
 	public void writerBingoByNumber() {
@@ -213,73 +227,13 @@ class User {
 	}
 	
 	public void checkBingo(int index1, int index2) {
-		boolean widthBingo = true;
-		boolean heightBingo = true;
-		boolean diagonalBingo1 = true;
-		boolean diagonalBingo2 = false;
-		
-		int k = userCheckBingo.length - 1;
-		for (int j = 0; j < userCheckBingo.length; j++) {
-			
-			if (userCheckBingo[index1][j] != 0 && widthBingo) {
-				widthBingo = false;
-			}
-			
-			if (userCheckBingo[j][index2] != 0 && heightBingo) {
-				heightBingo = false;
-			}
-			
-			if (diagonalBingo1) {
-				if (index1 != index2) {
-					diagonalBingo1 = false;					
-				}
-				
-				if (userCheckBingo[k][k] != 0) {
-					diagonalBingo1 = false;
-				}
-			}
-			
-			if (!diagonalBingo2) {
-				if (j == index1 && k == index2) {
-					int m = userCheckBingo.length - 1;
-					diagonalBingo2 = true;
-					
-					for (int l = 0; l < userCheckBingo.length; l++) {
-						if (userCheckBingo[l][m] != 0) {
-							diagonalBingo2 = false;
-						}
-						
-						--m;
-					}
-				
-				}
-			}
-			
-			--k;
-		}
-			
-		if (widthBingo) {
-			lineBingo(this, BingoType.WIDTH_BINGO.getBingoType());
-		}
-		
-		if (heightBingo) {
-			lineBingo(this, BingoType.HEIGHT_BINGO.getBingoType());
-		}
-		
-		if (diagonalBingo1) {
-			lineBingo(this, BingoType.DIAGONAL_BINGO.getBingoType());
-		}
-		
-		if (diagonalBingo2) {
-			lineBingo(this, BingoType.DIAGONAL_BINGO.getBingoType());
-		}
-		
+		Bingo.bingoCheck(this, index1, index2);
 	}
 	
 	private void lineBingo(User user, String bingoType) {
 		BingoType.findBingoConstructor(bingoType).lineBingo(user);;
 	}
-	
+
 }
 
 @Getter
@@ -307,13 +261,85 @@ enum BingoType {
 	
 }
 
-interface Bingo {
-	public void lineBingo(User user);
+abstract class Bingo {
+	public static void bingoCheck(User user, int index1, int index2) {
+		boolean widthBingo = true;
+		boolean heightBingo = true;
+		boolean diagonalBingo1 = true;
+		boolean diagonalBingo2 = false;
+		
+		int k = user.getUserCheckBingo().length - 1;
+		for (int j = 0; j < user.getUserCheckBingo().length; j++) {
+			
+			if (user.getUserCheckBingo()[index1][j] != 0 && widthBingo) {
+				widthBingo = false;
+			}
+			
+			if (user.getUserCheckBingo()[j][index2] != 0 && heightBingo) {
+				heightBingo = false;
+			}
+			
+			if (diagonalBingo1) {
+				if (index1 != index2) {
+					diagonalBingo1 = false;					
+				}
+				
+				if (user.getUserCheckBingo()[k][k] != 0) {
+					diagonalBingo1 = false;
+				}
+			}
+			
+			if (!diagonalBingo2) {
+				if (j == index1 && k == index2) {
+					int m = user.getUserCheckBingo().length - 1;
+					diagonalBingo2 = true;
+					
+					for (int l = 0; l < user.getUserCheckBingo().length; l++) {
+						if (user.getUserCheckBingo()[l][m] != 0) {
+							diagonalBingo2 = false;
+						}
+						
+						--m;
+					}
+				
+				}
+			}
+			
+			--k;
+		}
+		
+		
+		if (widthBingo) {
+			lineBingoTypeCheck(user, BingoType.WIDTH_BINGO.getBingoType());
+		}
+		
+		if (heightBingo) {
+			lineBingoTypeCheck(user, BingoType.WIDTH_BINGO.getBingoType());
+		}
+		
+		if (diagonalBingo1) {
+			lineBingoTypeCheck(user, BingoType.WIDTH_BINGO.getBingoType());
+		}
+		
+		if (diagonalBingo2) {
+			lineBingoTypeCheck(user, BingoType.WIDTH_BINGO.getBingoType());
+		}
+		
+	}
+	
+	private static void lineBingoTypeCheck(User user, String bingoType) {
+		Arrays.stream(BingoType.values())
+			.filter(bta -> bingoType.equals(bta.getBingoType()))
+			.forEach(val -> val.getBingoConstructor().lineBingo(user));
+	}
+	
+	
+	public abstract void lineBingo(User user);
 }
 
 
 // 가로 빙고
-class WidthBingo implements Bingo {
+class WidthBingo extends Bingo {
 
 	@Override
 	public void lineBingo(User user) {
@@ -323,7 +349,7 @@ class WidthBingo implements Bingo {
 }
 
 // 세로 빙고
-class HeightBingo implements Bingo {
+class HeightBingo extends Bingo {
 
 	@Override
 	public void lineBingo(User user) {
@@ -334,11 +360,26 @@ class HeightBingo implements Bingo {
 
 
 // 대각선 빙고
-class DiagonalBingo implements Bingo {
+class DiagonalBingo extends Bingo {
 
 	@Override
 	public void lineBingo(User user) {
 		user.setBingoCount(user.getBingoCount() + 1);
 		System.out.println(user.getUserName() + ": 대각선빙고! 현재 빙고: " + user.getBingoCount());
 	}
+}
+
+class AttendanceOutofBoundsException extends RuntimeException {
+	
+	public AttendanceOutofBoundsException() {
+		super();
+	}
+	
+	public AttendanceOutofBoundsException(String message) {
+		super(message);
+	}
+	
+	
+	
+	
 }
