@@ -256,8 +256,6 @@ enum BingoType123 {
 	}
 	
 	
-	
-	
 }
 
 interface Bingo123 {
@@ -292,4 +290,6 @@ class DiagonalBingo123 implements Bingo123 {
 		System.out.println("대각선 빙고!");
 	}
 }
+
+
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -25,11 +26,13 @@ public class Main2 {
 	public static void main(String[] args) {
 		int bingoLength = 5;
 		int endGameCondition = 3;
-		int attendanceNumber = 2;
+		int attendanceNumber = 5;
 		
 		List<String> userNames = new ArrayList<>();
 		userNames.add("최상현");
-		userNames.add("마구미");
+		userNames.add("아무개");
+		userNames.add("아무개1");
+		userNames.add("아무개2");
 		
 		BingoBoard bingoBoard = new BingoBoard(bingoLength, endGameCondition, attendanceNumber, userNames);
 		bingoBoard.initBingoGame();
@@ -62,6 +65,7 @@ class BingoBoard {
 				userNames.add("anonymity" + i);
 			}
 		}
+		
 		/**
 		if (attendanceNumber < userNames.size()) {
 			// (1)
